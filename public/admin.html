@@ -3,379 +3,223 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Administration - Le daily scoop</title>
+  <title>Administration</title>
   <style>
-    :root {
-      --bg-overlay: rgba(255, 255, 255, 0.45);
-      --glass-bg: rgba(255, 255, 255, 0.7);
-      --glass-border: rgba(255, 255, 255, 0.6);
-      --glass-shadow: rgba(31, 38, 135, 0.15);
-      --backdrop-blur: blur(16px) saturate(180%);
-      --text-main: #1f1f1f;
-      --text-muted: #5f6368;
-      --input-bg: rgba(255, 255, 255, 0.8);
-      --accent-color: #1a73e8;
-    }
-
-    [data-theme="dark"] {
-      --bg-overlay: rgba(15, 23, 42, 0.75);
-      --glass-bg: rgba(30, 41, 59, 0.75);
-      --glass-border: rgba(255, 255, 255, 0.12);
-      --glass-shadow: rgba(0, 0, 0, 0.4);
-      --text-main: #e8eaed;
-      --text-muted: #9aa0a6;
-      --input-bg: rgba(15, 23, 42, 0.6);
-      --accent-color: #8ab4f8;
-    }
-
-    [data-glass="opaque"] {
-      --glass-bg: #ffffff;
-      --backdrop-blur: none;
-      --glass-border: #cbd5e1;
-      --input-bg: #ffffff;
-    }
-
-    [data-theme="dark"][data-glass="opaque"] {
-      --glass-bg: #1e293b;
-      --backdrop-blur: none;
-      --glass-border: #334155;
-      --input-bg: #0f172a;
-    }
-
-    * { box-sizing: border-box; transition: background 0.25s, color 0.25s, border-color 0.25s; }
-
-    body {
-      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-      margin: 0;
-      padding: 20px;
-      min-height: 100vh;
-      background: linear-gradient(var(--bg-overlay), var(--bg-overlay)), url('accueil 2.png') no-repeat center center fixed;
-      background-size: cover;
-      color: var(--text-main);
-    }
-
-    .header-bar {
-      max-width: 800px;
-      margin: 0 auto 20px auto;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-
-    .header-controls {
-      display: flex;
-      gap: 10px;
-    }
-
-    .ctrl-btn {
-      background: var(--glass-bg);
-      backdrop-filter: var(--backdrop-blur);
-      -webkit-backdrop-filter: var(--backdrop-blur);
-      border: 1px solid var(--glass-border);
-      color: var(--text-main);
-      padding: 8px 16px;
-      border-radius: 20px;
-      cursor: pointer;
-      font-weight: 600;
-      font-size: 0.85em;
-      box-shadow: 0 4px 12px var(--glass-shadow);
-      width: auto;
-      margin: 0;
-    }
-
-    .ctrl-btn:hover {
-      background: var(--accent-color);
-      color: white;
-      border-color: var(--accent-color);
-    }
-
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f1f5f9; color: #333; padding: 2rem 1rem; }
     .container { max-width: 800px; margin: 0 auto; }
+    .card { background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 2rem; }
+    h2 { margin-bottom: 1rem; color: #0f172a; font-size: 1.3rem; border-bottom: 2px solid #f1f5f9; padding-bottom: 0.5rem; }
+    
+    .form-group { margin-bottom: 1rem; }
+    label { display: block; margin-bottom: 0.3rem; font-weight: 600; font-size: 0.9rem; }
+    input[type="text"], input[type="password"], textarea, select { width: 100%; padding: 0.6rem; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 0.95rem; }
+    textarea { resize: vertical; height: 100px; }
+    button { background: #2563eb; color: white; border: none; padding: 0.6rem 1.2rem; border-radius: 4px; cursor: pointer; font-weight: 600; }
+    button:hover { background: #1d4ed8; }
+    .btn-danger { background: #ef4444; padding: 0.3rem 0.6rem; font-size: 0.85rem; }
+    .btn-danger:hover { background: #dc2626; }
 
-    .card {
-      background: var(--glass-bg);
-      backdrop-filter: var(--backdrop-blur);
-      -webkit-backdrop-filter: var(--backdrop-blur);
-      padding: 25px;
-      border-radius: 16px;
-      border: 1px solid var(--glass-border);
-      box-shadow: 0 8px 32px 0 var(--glass-shadow);
-      margin-bottom: 25px;
-    }
-
-    h1, h2, h3 { margin-top: 0; color: var(--text-main); }
-
-    label { font-weight: 600; font-size: 0.9em; color: var(--text-muted); display: block; margin-top: 10px; }
-
-    input, textarea, select {
-      width: 100%;
-      padding: 10px;
-      margin-top: 6px;
-      margin-bottom: 12px;
-      border: 1px solid var(--glass-border);
-      background: var(--input-bg);
-      color: var(--text-main);
-      border-radius: 8px;
-    }
-
-    button {
-      width: 100%;
-      padding: 10px;
-      margin-top: 8px;
-      margin-bottom: 12px;
-      border: none;
-      border-radius: 8px;
-      background: var(--accent-color);
-      color: white;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    button:hover { opacity: 0.9; }
-
-    .btn-danger {
-      background: #e74c3c;
-      margin: 0;
-      width: auto;
-      padding: 6px 12px;
-      font-size: 0.85em;
-    }
-
-    .btn-danger:hover { background: #c0392b; }
-
+    .list-item { display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0; border-bottom: 1px solid #f1f5f9; }
+    #login-section { max-width: 400px; margin: 4rem auto; }
     .hidden { display: none; }
-
-    .item-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid var(--glass-border);
-      padding: 10px 0;
-      gap: 15px;
-    }
-
-    .item-info {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .img-preview {
-      width: 50px;
-      height: 50px;
-      object-fit: cover;
-      border-radius: 6px;
-      border: 1px solid var(--glass-border);
-      background: #eee;
-    }
   </style>
 </head>
 <body>
 
-<div class="header-bar">
-  <h1 style="margin:0;">Admin - Le daily scoop</h1>
-  <div class="header-controls">
-    <button class="ctrl-btn" onclick="basculerGlass()" id="glass-btn">✨ Opacité : Glass</button>
-    <button class="ctrl-btn" onclick="basculerTheme()" id="theme-btn">🌙 Mode Sombre</button>
-  </div>
-</div>
-
-<div class="container">
-
-  <!-- Connexion -->
-  <div id="login-block" class="card">
-    <h2>Connexion</h2>
-    <input type="password" id="password" placeholder="Mot de passe admin">
-    <button onclick="seConnecter()">Se connecter</button>
-    <p id="login-error" style="color:#e74c3c;" class="hidden">Mot de passe incorrect</p>
-  </div>
-
-  <!-- Dashboard -->
-  <div id="admin-dashboard" class="hidden">
-    <button onclick="seDeconnecter()" style="background:#64748b; margin-bottom:20px; width:auto; padding:8px 16px;">Déconnexion</button>
-
-    <!-- Catégories -->
-    <div class="card">
-      <h2>Gérer les Catégories</h2>
-      <input type="text" id="cat-nom" placeholder="Nom de la nouvelle catégorie">
-      <button onclick="ajouterCategorie()">Ajouter la catégorie</button>
-      <div id="list-categories" style="margin-top:15px;"></div>
+  <div class="container">
+    <!-- Formulaire de Connexion -->
+    <div id="login-section" class="card">
+      <h2>Connexion Administration</h2>
+      <form id="form-login" onsubmit="connexion(event)">
+        <div class="form-group">
+          <label>Mot de passe :</label>
+          <input type="password" id="admin-pass" required>
+        </div>
+        <button type="submit">Se connecter</button>
+      </form>
     </div>
 
-    <!-- Actualités -->
-    <div class="card">
-      <h2>Ajouter une Actualité</h2>
-      <label>Catégorie :</label>
-      <select id="actu-cat"></select>
-      <input type="text" id="actu-titre" placeholder="Titre de l'article">
-      <textarea id="actu-contenu" rows="4" placeholder="Contenu de l'article"></textarea>
-      <label>Image de l'article (.png, .gif, .webp, .jpg) :</label>
-      <input type="file" id="actu-file" accept="image/*">
-      <button onclick="ajouterActu()">Publier l'actualité</button>
-      <hr style="border:0; border-top:1px solid var(--glass-border); margin:20px 0;">
-      <h3>Actualités publiées</h3>
-      <div id="list-actus"></div>
+    <!-- Panneau Admin (masqué par défaut) -->
+    <div id="admin-panel" class="hidden">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <h1>Espace Administration</h1>
+        <button onclick="deconnexion()" class="btn-danger">Déconnexion</button>
+      </div>
+
+      <!-- Gestion des Rubriques / Catégories -->
+      <div class="card">
+        <h2>1. Gestion des Rubriques</h2>
+        <form onsubmit="ajouterCategorie(event)" style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
+          <input type="text" id="cat-nom" placeholder="Nom de la rubrique" required>
+          <button type="submit">Ajouter</button>
+        </form>
+        <div id="liste-categories"></div>
+      </div>
+
+      <!-- Publication d'Articles -->
+      <div class="card">
+        <h2>2. Publier un Article / Actualité</h2>
+        <form onsubmit="ajouterActu(event)" enctype="multipart/form-data">
+          <div class="form-group">
+            <label>Rubrique :</label>
+            <select id="actu-cat" required></select>
+          </div>
+          <div class="form-group">
+            <label>Titre :</label>
+            <input type="text" id="actu-titre" required>
+          </div>
+          <div class="form-group">
+            <label>Contenu :</label>
+            <textarea id="actu-contenu" required></textarea>
+          </div>
+          <div class="form-group">
+            <label>Image (optionnel) :</label>
+            <input type="file" id="actu-image" accept="image/*">
+          </div>
+          <button type="submit">Publier l'article</button>
+        </form>
+      </div>
+
+      <!-- Liste des Articles publiés -->
+      <div class="card">
+        <h2>3. Articles en ligne</h2>
+        <div id="liste-actus"></div>
+      </div>
     </div>
   </div>
-</div>
 
-<script>
-  let token = localStorage.getItem('admin_token');
+  <script>
+    const token = localStorage.getItem('token');
 
-  // Gestion Thème & Style Glass
-  function initialiserApparence() {
-    const themeSauvegarde = localStorage.getItem('admin_theme') || 'light';
-    const glassSauvegarde = localStorage.getItem('admin_glass') || 'glass';
-
-    document.documentElement.setAttribute('data-theme', themeSauvegarde);
-    document.documentElement.setAttribute('data-glass', glassSauvegarde);
-
-    mettreAJourBoutons(themeSauvegarde, glassSauvegarde);
-  }
-
-  function basculerTheme() {
-    const currentTheme = document.documentElement.getAttribute('data-theme');
-    const nouveauTheme = currentTheme === 'dark' ? 'light' : 'dark';
-    document.documentElement.setAttribute('data-theme', nouveauTheme);
-    localStorage.setItem('admin_theme', nouveauTheme);
-    mettreAJourBoutons(nouveauTheme, document.documentElement.getAttribute('data-glass'));
-  }
-
-  function basculerGlass() {
-    const currentGlass = document.documentElement.getAttribute('data-glass');
-    const nouveauGlass = currentGlass === 'glass' ? 'opaque' : 'glass';
-    document.documentElement.setAttribute('data-glass', nouveauGlass);
-    localStorage.setItem('admin_glass', nouveauGlass);
-    mettreAJourBoutons(document.documentElement.getAttribute('data-theme'), nouveauGlass);
-  }
-
-  function mettreAJourBoutons(theme, glass) {
-    document.getElementById('theme-btn').innerText = theme === 'dark' ? '☀️ Mode Clair' : '🌙 Mode Sombre';
-    document.getElementById('glass-btn').innerText = glass === 'glass' ? '🔲 Opacité : Opaque' : '✨ Opacité : Glass';
-  }
-
-  async function seConnecter() {
-    const pass = document.getElementById('password').value;
-    const res = await fetch('/api/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ password: pass })
+    document.addEventListener('DOMContentLoaded', () => {
+      if (token) {
+        afficherAdmin();
+      }
     });
-    const data = await res.json();
-    if (data.success) {
-      token = data.token;
-      localStorage.setItem('admin_token', token);
-      afficherDashboard();
-    } else {
-      document.getElementById('login-error').classList.remove('hidden');
+
+    async function connexion(e) {
+      e.preventDefault();
+      const password = document.getElementById('admin-pass').value;
+
+      const res = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password })
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        localStorage.setItem('token', data.token);
+        afficherAdmin();
+      } else {
+        alert("Mot de passe incorrect");
+      }
     }
-  }
 
-  function seDeconnecter() {
-    localStorage.removeItem('admin_token');
-    location.reload();
-  }
+    function deconnexion() {
+      localStorage.removeItem('token');
+      location.reload();
+    }
 
-  function afficherDashboard() {
-    document.getElementById('login-block').classList.add('hidden');
-    document.getElementById('admin-dashboard').classList.remove('hidden');
-    chargerToutesLesDonnees();
-  }
+    function afficherAdmin() {
+      document.getElementById('login-section').classList.add('hidden');
+      document.getElementById('admin-panel').classList.remove('hidden');
+      chargerCategoriesAdmin();
+      chargerActusAdmin();
+    }
 
-  async function chargerToutesLesDonnees() {
-    chargerCategories();
-    chargerActus();
-  }
+    // Charger & Afficher les catégories
+    async function chargerCategoriesAdmin() {
+      const res = await fetch('/api/categories?t=' + Date.now());
+      const categories = await res.json();
 
-  async function chargerCategories() {
-    const res = await fetch('/api/categories');
-    const cats = await res.json();
-    const select = document.getElementById('actu-cat');
-    const list = document.getElementById('list-categories');
-    select.innerHTML = '';
-    list.innerHTML = '';
+      const select = document.getElementById('actu-cat');
+      select.innerHTML = '<option value="">-- Choisir une rubrique --</option>';
+      
+      const listContainer = document.getElementById('liste-categories');
+      listContainer.innerHTML = '';
 
-    cats.forEach(c => {
-      select.innerHTML += `<option value="${c.id}">${c.nom}</option>`;
-      list.innerHTML += `
-        <div class="item-row">
-          <span>${c.nom}</span>
-          <button class="btn-danger" onclick="supprimerCategorie(${c.id})">Supprimer</button>
-        </div>`;
-    });
-  }
+      categories.forEach(cat => {
+        select.innerHTML += `<option value="${cat.id}">${cat.nom}</option>`;
+        listContainer.innerHTML += `
+          <div class="list-item">
+            <span>${cat.nom}</span>
+            <button onclick="supprimerCategorie(${cat.id})" class="btn-danger">Supprimer</button>
+          </div>
+        `;
+      });
+    }
 
-  async function ajouterCategorie() {
-    const nom = document.getElementById('cat-nom').value;
-    if(!nom.trim()) return;
-    await fetch('/api/categories', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-      body: JSON.stringify({ nom })
-    });
-    document.getElementById('cat-nom').value = '';
-    chargerCategories();
-  }
+    async function ajouterCategorie(e) {
+      e.preventDefault();
+      const nom = document.getElementById('cat-nom').value;
 
-  async function supprimerCategorie(id) {
-    if(!confirm('Supprimer cette catégorie supprimera aussi ses actualités.')) return;
-    await fetch(`/api/categories/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
-    chargerCategories();
-    chargerActus();
-  }
+      const res = await fetch('/api/categories', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + localStorage.getItem('token')
+        },
+        body: JSON.stringify({ nom })
+      });
 
-  async function chargerActus() {
-    const res = await fetch('/api/actu');
-    const actus = await res.json();
-    const list = document.getElementById('list-actus');
-    list.innerHTML = '';
-    actus.forEach(a => {
-      // Normalisation de l'URL de l'image
-      let imgTag = '';
-      if (a.image) {
-        const imagePath = a.image.startsWith('/') ? a.image : '/' + a.image;
-        imgTag = `<img src="${imagePath}" class="img-preview" alt="Aperçu" onerror="this.style.display='none'">`;
+      if (res.ok) {
+        document.getElementById('cat-nom').value = '';
+        chargerCategoriesAdmin();
+      } else {
+        alert("Erreur lors de l'ajout (la rubrique existe peut-être déjà).");
+      }
+    }
+
+    async function supprimerCategorie(id) {
+      if (!confirm("Voulez-vous vraiment supprimer cette rubrique ?")) return;
+
+      await fetch('/api/categories/' + id, {
+        method: 'DELETE',
+        headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
+      });
+      chargerCategoriesAdmin();
+      chargerActusAdmin();
+    }
+
+    // Charger & Afficher les articles
+    async function chargerActusAdmin() {
+      const res = await fetch('/api/actu?t=' + Date.now());
+      const actus = await res.json();
+
+      const listContainer = document.getElementById('liste-actus');
+      if (actus.length === 0) {
+        listContainer.innerHTML = '<p>Aucun article publié.</p>';
+        return;
       }
 
-      list.innerHTML += `
-        <div class="item-row">
-          <div class="item-info">
-            ${imgTag}
-            <div>
-              <strong>${a.titre}</strong>
-              <div style="font-size:0.8em; color:var(--text-muted);">${a.date || ''}</div>
-            </div>
+      listContainer.innerHTML = actus.map(item => `
+        <div class="list-item">
+          <div>
+            <strong>${item.titre}</strong> 
+            <small>(${item.category_name || 'Général'})</small>
           </div>
-          <button class="btn-danger" onclick="supprimerActu(${a.id})">Supprimer</button>
-        </div>`;
-    });
-  }
-
-  async function ajouterActu() {
-    const titre = document.getElementById('actu-titre').value;
-    const contenu = document.getElementById('actu-contenu').value;
-    const category_id = document.getElementById('actu-cat').value;
-    const fileInput = document.getElementById('actu-file');
-
-    if (!titre.trim() || !category_id) {
-      alert("Veuillez renseigner le titre et choisir une catégorie.");
-      return;
+          <button onclick="supprimerActu(${item.id})" class="btn-danger">Supprimer</button>
+        </div>
+      `).join('');
     }
 
-    const formData = new FormData();
-    formData.append('category_id', category_id);
-    formData.append('titre', titre);
-    formData.append('contenu', contenu);
-    
-    if (fileInput.files[0]) {
-      formData.append('image', fileInput.files[0]);
-    }
+    async function ajouterActu(e) {
+      e.preventDefault();
+      const formData = new FormData();
+      formData.append('category_id', document.getElementById('actu-cat').value);
+      formData.append('titre', document.getElementById('actu-titre').value);
+      formData.append('contenu', document.getElementById('actu-contenu').value);
+      
+      const fileInput = document.getElementById('actu-image');
+      if (fileInput.files[0]) {
+        formData.append('image', fileInput.files[0]);
+      }
 
-    try {
       const res = await fetch('/api/actu', {
         method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` },
+        headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') },
         body: formData
       });
 
@@ -383,24 +227,21 @@
         document.getElementById('actu-titre').value = '';
         document.getElementById('actu-contenu').value = '';
         fileInput.value = '';
-        chargerActus();
+        chargerActusAdmin();
       } else {
         alert("Erreur lors de la publication de l'article.");
       }
-    } catch (err) {
-      console.error(err);
-      alert("Erreur réseau lors de l'envoi.");
     }
-  }
 
-  async function supprimerActu(id) {
-    if(!confirm("Voulez-vous vraiment supprimer cet article ?")) return;
-    await fetch(`/api/actu/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
-    chargerActus();
-  }
+    async function supprimerActu(id) {
+      if (!confirm("Voulez-vous supprimer cet article ?")) return;
 
-  initialiserApparence();
-  if (token) afficherDashboard();
-</script>
+      await fetch('/api/actu/' + id, {
+        method: 'DELETE',
+        headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
+      });
+      chargerActusAdmin();
+    }
+  </script>
 </body>
 </html>
