@@ -3,390 +3,334 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Le daily scoop - Site Officiel</title>
+  <title>Le daily scoop - Accueil</title>
   <style>
     :root {
       --bg-overlay: rgba(255, 255, 255, 0.45);
-      --glass-bg: rgba(255, 255, 255, 0.65);
+      --glass-bg: rgba(255, 255, 255, 0.75);
       --glass-border: rgba(255, 255, 255, 0.6);
-      --glass-shadow: rgba(31, 38, 135, 0.12);
+      --glass-shadow: rgba(31, 38, 135, 0.15);
+      --backdrop-blur: blur(16px) saturate(180%);
       --text-main: #1f1f1f;
       --text-muted: #5f6368;
-      --card-bg: rgba(255, 255, 255, 0.8);
-      --accent-color: #1a73e8; /* Bleu Google */
-      --tab-bg: rgba(255, 255, 255, 0.7);
-      --tab-hover: #f1f3f4;
-      --tab-active-bg: #e8f0fe;
-      --tab-active-text: #1a73e8;
+      --accent-color: #1a73e8;
     }
 
     [data-theme="dark"] {
-      --bg-overlay: rgba(15, 23, 42, 0.7);
-      --glass-bg: rgba(30, 41, 59, 0.75);
+      --bg-overlay: rgba(15, 23, 42, 0.75);
+      --glass-bg: rgba(30, 41, 59, 0.8);
       --glass-border: rgba(255, 255, 255, 0.12);
       --glass-shadow: rgba(0, 0, 0, 0.4);
       --text-main: #e8eaed;
       --text-muted: #9aa0a6;
-      --card-bg: rgba(15, 23, 42, 0.65);
-      --accent-color: #8ab4f8; /* Bleu Google Dark */
-      --tab-bg: rgba(30, 41, 59, 0.8);
-      --tab-hover: #3c4043;
-      --tab-active-bg: #2d3748;
-      --tab-active-text: #8ab4f8;
+      --accent-color: #8ab4f8;
+    }
+
+    [data-glass="opaque"] {
+      --glass-bg: #ffffff;
+      --backdrop-blur: none;
+      --glass-border: #cbd5e1;
+    }
+
+    [data-theme="dark"][data-glass="opaque"] {
+      --glass-bg: #1e293b;
+      --backdrop-blur: none;
+      --glass-border: #334155;
     }
 
     * { box-sizing: border-box; transition: background 0.25s, color 0.25s, border-color 0.25s; }
 
     body {
-      font-family: 'Google Sans', Roboto, 'Segoe UI', system-ui, -apple-system, sans-serif;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
       margin: 0;
+      padding: 20px;
       min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      background: linear-gradient(var(--bg-overlay), var(--bg-overlay)), url('accueil.png') no-repeat center center fixed;
+      background: linear-gradient(var(--bg-overlay), var(--bg-overlay)), url('accueil 2.png') no-repeat center center fixed;
       background-size: cover;
       color: var(--text-main);
     }
 
-    /* Bannière compacte pour remonter les éléments */
-    .banner-container {
-      width: 100%;
-      height: 160px;
-      background: url('banner.jpg') no-repeat center center;
-      background-size: cover;
-      position: relative;
-      border-bottom: 1px solid var(--glass-border);
-    }
-
-    .banner-overlay {
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.7) 100%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .banner-overlay h1 {
-      margin: 0;
-      font-size: 2.4em;
-      color: #ffffff;
-      text-shadow: 0 4px 12px rgba(0,0,0,0.6);
-      letter-spacing: -0.5px;
-      font-weight: 700;
-    }
-
-    .theme-toggle-btn {
-      position: absolute;
-      top: 15px;
-      right: 15px;
-      background: rgba(255, 255, 255, 0.2);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.4);
-      color: white;
-      padding: 8px 14px;
-      border-radius: 20px;
-      cursor: pointer;
-      font-weight: 500;
-      font-size: 0.9em;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-      z-index: 10;
-    }
-
-    .theme-toggle-btn:hover {
-      background: rgba(255, 255, 255, 0.35);
-    }
-
-    /* Barre d'onglets style Google centrée et positionnée haut */
-    .nav-tabs-wrapper {
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      background: var(--glass-bg);
-      backdrop-filter: blur(16px) saturate(180%);
-      -webkit-backdrop-filter: blur(16px) saturate(180%);
-      border-bottom: 1px solid var(--glass-border);
-      box-shadow: 0 4px 20px var(--glass-shadow);
-      padding: 10px 0;
-    }
-
-    .tabs-container {
-      max-width: 950px;
-      margin: 0 auto;
-      padding: 0 20px;
-      display: flex;
-      gap: 8px;
-      overflow-x: auto;
-      scrollbar-width: none; /* Cache la barre de défilement */
-    }
-
-    .tabs-container::-webkit-scrollbar {
-      display: none;
-    }
-
-    /* Style pilule Google */
-    .tab-btn {
-      background: transparent;
-      border: 1px solid transparent;
-      color: var(--text-muted);
-      padding: 8px 18px;
-      border-radius: 24px;
-      cursor: pointer;
-      font-weight: 500;
-      font-size: 0.95em;
-      white-space: nowrap;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .tab-btn:hover {
-      background: var(--tab-hover);
-      color: var(--text-main);
-    }
-
-    .tab-btn.active {
-      background: var(--tab-active-bg);
-      color: var(--tab-active-text);
-      border-color: rgba(26, 115, 232, 0.2);
-      font-weight: 600;
-    }
-
-    .container {
-      max-width: 950px;
-      margin: 20px auto;
-      padding: 0 20px;
-      flex: 1;
-      width: 100%;
-    }
-
-    /* Boîtes de contenu Liquid Glass */
-    section {
-      background: var(--glass-bg);
-      backdrop-filter: blur(16px) saturate(180%);
-      -webkit-backdrop-filter: blur(16px) saturate(180%);
-      padding: 25px;
-      border-radius: 16px;
-      margin-bottom: 25px;
-      border: 1px solid var(--glass-border);
-      box-shadow: 0 8px 32px 0 var(--glass-shadow);
-    }
-
-    h2 {
-      margin-top: 0;
-      padding-bottom: 12px;
-      color: var(--text-main);
-      font-size: 1.4em;
-      font-weight: 600;
-      border-bottom: 1px solid var(--glass-border);
-    }
-
-    .card {
-      background: var(--card-bg);
-      border: 1px solid var(--glass-border);
-      padding: 18px;
-      margin-bottom: 12px;
-      border-radius: 12px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.03);
-    }
-
-    .card h3 { 
-      margin: 0 0 6px 0; 
-      color: var(--accent-color); 
-      font-size: 1.15em;
-    }
-    
-    .card p { 
-      margin: 0; 
-      line-height: 1.5; 
-      color: var(--text-main); 
-      font-size: 0.98em;
-    }
-
-    .vinted-card {
+    header {
+      max-width: 1000px;
+      margin: 0 auto 30px auto;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: var(--card-bg);
-      border: 1px solid var(--glass-border);
-      padding: 16px 20px;
-      margin-bottom: 10px;
-      border-radius: 12px;
+      flex-wrap: wrap;
+      gap: 15px;
     }
 
-    .vinted-btn {
-      background: #00a8ff;
-      color: white;
-      text-decoration: none;
+    .brand {
+      font-size: 1.8em;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+
+    .controls {
+      display: flex;
+      gap: 10px;
+    }
+
+    .ctrl-btn {
+      background: var(--glass-bg);
+      backdrop-filter: var(--backdrop-blur);
+      -webkit-backdrop-filter: var(--backdrop-blur);
+      border: 1px solid var(--glass-border);
+      color: var(--text-main);
       padding: 8px 16px;
       border-radius: 20px;
-      font-weight: 500;
-      font-size: 0.9em;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.85em;
+      box-shadow: 0 4px 12px var(--glass-shadow);
     }
 
-    footer {
-      background: rgba(15, 23, 42, 0.88);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
+    .ctrl-btn:hover {
+      background: var(--accent-color);
       color: white;
-      text-align: center;
-      padding: 25px 20px;
-      margin-top: auto;
-      border-top: 1px solid var(--glass-border);
+      border-color: var(--accent-color);
     }
 
-    footer p { margin-top: 0; color: #cbd5e1; font-size: 0.9em; }
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
 
-    .socials {
+    /* Filtres par catégories */
+    .categories-bar {
       display: flex;
-      justify-content: center;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin-top: 12px;
+      gap: 10px;
+      overflow-x: auto;
+      padding-bottom: 15px;
+      margin-bottom: 25px;
     }
 
-    .btn-social {
+    .cat-chip {
+      background: var(--glass-bg);
+      backdrop-filter: var(--backdrop-blur);
+      -webkit-backdrop-filter: var(--backdrop-blur);
+      border: 1px solid var(--glass-border);
       padding: 8px 18px;
-      text-decoration: none;
-      color: white;
       border-radius: 20px;
-      font-weight: 500;
+      cursor: pointer;
+      white-space: nowrap;
+      font-weight: 600;
       font-size: 0.9em;
     }
 
-    .twitch { background-color: #9146FF; }
-    .discord { background-color: #5865F2; }
-    .youtube { background-color: #FF0000; }
+    .cat-chip.active, .cat-chip:hover {
+      background: var(--accent-color);
+      color: white;
+      border-color: var(--accent-color);
+    }
+
+    /* Grille d'articles */
+    .news-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 25px;
+    }
+
+    .card {
+      background: var(--glass-bg);
+      backdrop-filter: var(--backdrop-blur);
+      -webkit-backdrop-filter: var(--backdrop-blur);
+      border-radius: 16px;
+      border: 1px solid var(--glass-border);
+      box-shadow: 0 8px 32px 0 var(--glass-shadow);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card-img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      background: rgba(0,0,0,0.05);
+      border-bottom: 1px solid var(--glass-border);
+    }
+
+    .card-body {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+    }
+
+    .card-badge {
+      align-self: flex-start;
+      font-size: 0.75em;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--accent-color);
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+
+    .card-title {
+      margin: 0 0 10px 0;
+      font-size: 1.25em;
+      line-height: 1.3;
+    }
+
+    .card-text {
+      font-size: 0.95em;
+      color: var(--text-muted);
+      line-height: 1.5;
+      margin-bottom: 15px;
+      white-space: pre-line;
+      flex-grow: 1;
+    }
+
+    .card-date {
+      font-size: 0.8em;
+      color: var(--text-muted);
+      margin-top: auto;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px;
+      background: var(--glass-bg);
+      backdrop-filter: var(--backdrop-blur);
+      border-radius: 16px;
+      border: 1px solid var(--glass-border);
+      grid-column: 1 / -1;
+    }
   </style>
 </head>
 <body>
 
-  <div class="banner-container">
-    <button class="theme-toggle-btn" onclick="basculerTheme()" id="theme-btn">🌙 Mode Sombre</button>
-    <div class="banner-overlay">
-      <h1>Le daily scoop</h1>
-    </div>
+<header>
+  <div class="brand">Le daily scoop</div>
+  <div class="controls">
+    <button class="ctrl-btn" onclick="basculerGlass()" id="glass-btn">✨ Opacité : Glass</button>
+    <button class="ctrl-btn" onclick="basculerTheme()" id="theme-btn">🌙 Mode Sombre</button>
+  </div>
+</header>
+
+<div class="container">
+  <div class="categories-bar" id="categories-bar">
+    <button class="cat-chip active" onclick="filtrerCategorie(null, this)">Toutes</button>
   </div>
 
-  <!-- Barre d'onglets style Google collée sous la bannière -->
-  <div class="nav-tabs-wrapper">
-    <div class="tabs-container" id="tabs-container"></div>
+  <div class="news-grid" id="news-grid">
+    <div class="empty-state">Chargement des actualités...</div>
   </div>
+</div>
 
-  <div class="container">
-    <section>
-      <h2>Flux d'actualités</h2>
-      <div id="actu-container">Chargement des actualités...</div>
-    </section>
+<script>
+  let articles = [];
+  let categorieActive = null;
 
-    <section>
-      <h2>Mes Annonces Vinted</h2>
-      <div id="vinted-container">Chargement des articles...</div>
-    </section>
-  </div>
+  function initialiserApparence() {
+    const themeSauvegarde = localStorage.getItem('site_theme') || 'light';
+    const glassSauvegarde = localStorage.getItem('site_glass') || 'glass';
 
-  <footer>
-    <p>Pour nous suivre au quotidien, ne rien rater des lives et échanger avec la communauté :</p>
-    <div class="socials">
-      <a href="https://www.twitch.tv/valtrackplayer" target="_blank" class="btn-social twitch">Twitch</a>
-      <a href="https://discord.gg/Zb2DX9GNJ" target="_blank" class="btn-social discord">Serveur Discord</a>
-      <a href="https://www.youtube.com/@ValTrackPlayer" target="_blank" class="btn-social youtube">Chaîne YouTube</a>
-    </div>
-  </footer>
+    document.documentElement.setAttribute('data-theme', themeSauvegarde);
+    document.documentElement.setAttribute('data-glass', glassSauvegarde);
 
-  <script>
-    function initialiserTheme() {
-      const themeSauvegarde = localStorage.getItem('theme') || 'light';
-      document.documentElement.setAttribute('data-theme', themeSauvegarde);
-      mettreAJourBouton(themeSauvegarde);
-    }
+    mettreAJourBoutons(themeSauvegarde, glassSauvegarde);
+  }
 
-    function basculerTheme() {
-      const currentTheme = document.documentElement.getAttribute('data-theme');
-      const nouveauTheme = currentTheme === 'dark' ? 'light' : 'dark';
-      document.documentElement.setAttribute('data-theme', nouveauTheme);
-      localStorage.setItem('theme', nouveauTheme);
-      mettreAJourBouton(nouveauTheme);
-    }
+  function basculerTheme() {
+    const currentTheme = document.documentElement.getAttribute('data-theme');
+    const nouveauTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', nouveauTheme);
+    localStorage.setItem('site_theme', nouveauTheme);
+    mettreAJourBoutons(nouveauTheme, document.documentElement.getAttribute('data-glass'));
+  }
 
-    function mettreAJourBouton(theme) {
-      const btn = document.getElementById('theme-btn');
-      btn.innerText = theme === 'dark' ? '☀️ Mode Clair' : '🌙 Mode Sombre';
-    }
+  function basculerGlass() {
+    const currentGlass = document.documentElement.getAttribute('data-glass');
+    const nouveauGlass = currentGlass === 'glass' ? 'opaque' : 'glass';
+    document.documentElement.setAttribute('data-glass', nouveauGlass);
+    localStorage.setItem('site_glass', nouveauGlass);
+    mettreAJourBoutons(document.documentElement.getAttribute('data-theme'), nouveauGlass);
+  }
 
-    async function initialiser() {
-      initialiserTheme();
-      await chargerOnglets();
-      await chargerVinted();
-    }
+  function mettreAJourBoutons(theme, glass) {
+    document.getElementById('theme-btn').innerText = theme === 'dark' ? '☀️ Mode Clair' : '🌙 Mode Sombre';
+    document.getElementById('glass-btn').innerText = glass === 'glass' ? '🔲 Opacité : Opaque' : '✨ Opacité : Glass';
+  }
 
-    async function chargerOnglets() {
+  async function chargerCategories() {
+    try {
       const res = await fetch('/api/categories');
-      const cats = await res.json();
-      const tabsDiv = document.getElementById('tabs-container');
+      const categories = await res.json();
+      const bar = document.getElementById('categories-bar');
       
-      tabsDiv.innerHTML = `<button class="tab-btn active" onclick="filtrerActu(null, this)">Toutes</button>`;
-      
-      cats.forEach(c => {
-        tabsDiv.innerHTML += `<button class="tab-btn" onclick="filtrerActu(${c.id}, this)">${c.nom}</button>`;
+      categories.forEach(c => {
+        const btn = document.createElement('button');
+        btn.className = 'cat-chip';
+        btn.innerText = c.nom;
+        btn.onclick = () => filtrerCategorie(c.id, btn);
+        bar.appendChild(btn);
       });
+    } catch (err) {
+      console.error("Erreur chargement catégories:", err);
+    }
+  }
 
-      chargerActu(null);
+  async function chargerArticles() {
+    try {
+      const res = await fetch('/api/actu');
+      articles = await res.json();
+      afficherArticles();
+    } catch (err) {
+      console.error("Erreur chargement articles:", err);
+      document.getElementById('news-grid').innerHTML = '<div class="empty-state">Impossible de charger les actualités.</div>';
+    }
+  }
+
+  function filtrerCategorie(catId, element) {
+    categorieActive = catId;
+    document.querySelectorAll('.cat-chip').forEach(c => c.classList.remove('active'));
+    element.classList.add('active');
+    afficherArticles();
+  }
+
+  function afficherArticles() {
+    const grid = document.getElementById('news-grid');
+    const articlesFiltres = categorieActive 
+      ? articles.filter(a => a.category_id === categorieActive)
+      : articles;
+
+    if (articlesFiltres.length === 0) {
+      grid.innerHTML = '<div class="empty-state">Aucun article publié dans cette catégorie pour le moment.</div>';
+      return;
     }
 
-    async function filtrerActu(catId, btn) {
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      chargerActu(catId);
-    }
-
-    async function chargerActu(catId) {
-      const url = catId ? `/api/actu?cat=${catId}` : '/api/actu';
-      const res = await fetch(url);
-      const actus = await res.json();
-      const div = document.getElementById('actu-container');
-
-      if (actus.length === 0) {
-        div.innerHTML = '<p style="color:var(--text-muted); font-size:0.95em;">Aucune actualité dans cette catégorie pour le moment.</p>';
-        return;
+    grid.innerHTML = articlesFiltres.map(a => {
+      // Formater le chemin de l'image pour s'assurer qu'il démarre par /
+      let imgTag = '';
+      if (a.image) {
+        const imageSrc = a.image.startsWith('/') ? a.image : '/' + a.image;
+        imgTag = `<img src="${imageSrc}" class="card-img" alt="${a.titre}" onerror="this.style.display='none'">`;
       }
 
-      div.innerHTML = '';
-      actus.forEach(a => {
-        div.innerHTML += `
-          <div class="card">
-            <h3>${a.titre} <small style="font-size:0.75em; color:var(--text-muted); font-weight:normal;">• ${a.date}</small></h3>
-            <p>${a.contenu}</p>
+      const dateFormatted = a.date ? new Date(a.date).toLocaleDateString('fr-FR', {
+        day: 'numeric', month: 'long', year: 'numeric'
+      }) : '';
+
+      return `
+        <article class="card">
+          ${imgTag}
+          <div class="card-body">
+            <span class="card-badge">${a.category_name || 'Général'}</span>
+            <h2 class="card-title">${a.titre}</h2>
+            <p class="card-text">${a.contenu || ''}</p>
+            <div class="card-date">${dateFormatted}</div>
           </div>
-        `;
-      });
-    }
+        </article>
+      `;
+    }).join('');
+  }
 
-    async function chargerVinted() {
-      const res = await fetch('/api/vinted');
-      const articles = await res.json();
-      const div = document.getElementById('vinted-container');
-
-      if (articles.length === 0) {
-        div.innerHTML = '<p style="color:var(--text-muted); font-size:0.95em;">Aucune annonce Vinted en cours.</p>';
-        return;
-      }
-
-      div.innerHTML = '';
-      articles.forEach(v => {
-        div.innerHTML += `
-          <div class="vinted-card">
-            <div>
-              <strong>${v.titre}</strong> — <span style="color:#27ae60; font-weight:bold;">${v.prix} €</span>
-            </div>
-            <a href="${v.lien}" target="_blank" class="vinted-btn">Voir sur Vinted</a>
-          </div>
-        `;
-      });
-    }
-
-    initialiser();
-  </script>
+  initialiserApparence();
+  chargerCategories();
+  chargerArticles();
+</script>
 </body>
 </html>
