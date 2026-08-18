@@ -7,7 +7,7 @@ const Database = require('better-sqlite3');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Création du dossier uploads
+// Dossier pour les uploads
 const uploadDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
@@ -16,7 +16,7 @@ if (!fs.existsSync(uploadDir)) {
 // Base de données SQLite
 const db = new Database('database.db');
 
-// Initialisation de la table d'actualités
+// Table des actualités
 db.exec(`
   CREATE TABLE IF NOT EXISTS actu (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -27,7 +27,7 @@ db.exec(`
   )
 `);
 
-// Configuration Multer
+// Configuration de Multer pour les images d'actualités
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, uploadDir);
@@ -42,9 +42,9 @@ const upload = multer({ storage });
 // Middlewares
 app.use(express.json());
 
-// Servir les fichiers du dossier public s'il existe, sinon la racine
-const publicDir = fs.existsSync(path.join(__dirname, 'public')) 
-  ? path.join(__dirname, 'public') 
+// Support si les HTML sont à la racine OU dans un dossier public
+const publicDir = fs.existsSync(path.join(__dirname, 'public'))
+  ? path.join(__dirname, 'public')
   : __dirname;
 
 app.use(express.static(publicDir));
@@ -60,7 +60,7 @@ app.get('/admin', (req, res) => {
   res.sendFile(path.join(publicDir, 'admin.html'));
 });
 
-// --- ROUTES API ---
+// --- ROUTES API ACTUALITÉS ---
 
 app.get('/api/actu', (req, res) => {
   try {
@@ -96,5 +96,5 @@ app.delete('/api/actu/:id', (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Serveur démarré sur le port ${PORT}`);
+  console.log(`Serveur démarré sur http://localhost:${PORT}`);
 });
