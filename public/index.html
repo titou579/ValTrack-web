@@ -3,115 +3,264 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Fil d'Actualités</title>
+  <title>Le Daily Scoop - Accueil</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: Arial, sans-serif; background: #f4f6f8; color: #333; padding: 20px; }
-    .container { max-width: 800px; margin: 0 auto; }
-    h1 { text-align: center; margin-bottom: 20px; color: #111; }
+    :root {
+      --bg-image: url('https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=1920&auto=format&fit=crop');
+      --card-bg: rgba(20, 20, 30, 0.65);
+      --card-border: rgba(255, 255, 255, 0.18);
+      --text-color: #ffffff;
+      --subtext-color: #e0e0e0;
+      --accent-color: #7289da;
+      --glass-blur: blur(16px);
+    }
 
-    /* Formulaire */
-    .form-card { background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 30px; }
-    .form-card h2 { margin-bottom: 15px; font-size: 1.2rem; }
-    .form-group { margin-bottom: 15px; }
-    .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
-    .form-group input, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
-    .form-group textarea { resize: vertical; height: 100px; }
-    button { background: #0066cc; color: #fff; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-size: 1rem; }
-    button:hover { background: #0052a3; }
+    body.light-theme {
+      --card-bg: rgba(255, 255, 255, 0.75);
+      --card-border: rgba(0, 0, 0, 0.1);
+      --text-color: #1a1a1a;
+      --subtext-color: #4a4a4a;
+      --accent-color: #5865f2;
+    }
 
-    /* Liste des actualités */
-    .actu-card { background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 20px; overflow: hidden; }
-    .actu-card img { width: 100%; max-height: 350px; object-fit: cover; }
-    .actu-body { padding: 20px; }
-    .actu-body h3 { margin-bottom: 10px; color: #222; }
-    .actu-body p { line-height: 1.6; color: #555; white-space: pre-line; }
-    .actu-date { font-size: 0.85rem; color: #888; margin-top: 10px; }
-    .btn-delete { background: #dc3545; margin-top: 15px; padding: 6px 12px; font-size: 0.85rem; }
-    .btn-delete:hover { background: #bd2130; }
+    body.opaque-mode {
+      --glass-blur: blur(0px);
+      --card-bg: #1e1f29;
+    }
+
+    body.light-theme.opaque-mode {
+      --card-bg: #ffffff;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; transition: background 0.3s, color 0.3s; }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--bg-image) no-repeat center center fixed;
+      background-size: cover;
+      color: var(--text-color);
+      min-height: 100vh;
+      padding-bottom: 40px;
+    }
+
+    /* Barre supérieure / Onglets style Chrome/Google */
+    .chrome-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(10, 10, 15, 0.8);
+      backdrop-filter: blur(10px);
+      padding: 10px 20px;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    .tabs-container {
+      display: flex;
+      gap: 8px;
+    }
+
+    .google-tab {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 18px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 12px 12px 0 0;
+      color: #fff;
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      border: 1px solid transparent;
+    }
+
+    .google-tab.active {
+      background: var(--card-bg);
+      backdrop-filter: var(--glass-blur);
+      border-color: var(--card-border);
+      color: var(--text-color);
+    }
+
+    .social-links {
+      display: flex;
+      gap: 12px;
+    }
+
+    .social-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.15);
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      transition: transform 0.2s, background 0.2s;
+    }
+
+    .social-btn:hover { transform: scale(1.1); }
+    .social-btn.discord { background: #5865F2; }
+    .social-btn.youtube { background: #FF0000; }
+    .social-btn.twitch { background: #9146FF; }
+
+    /* Panneau de configuration (Thème & Style) */
+    .controls-bar {
+      max-width: 1000px;
+      margin: 20px auto 10px;
+      padding: 12px 20px;
+      background: var(--card-bg);
+      backdrop-filter: var(--glass-blur);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .control-btn {
+      background: rgba(255, 255, 255, 0.2);
+      border: 1px solid var(--card-border);
+      color: var(--text-color);
+      padding: 6px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .control-btn:hover { background: rgba(255, 255, 255, 0.3); }
+
+    /* Page Container */
+    .container {
+      max-width: 1000px;
+      margin: 20px auto;
+      padding: 0 15px;
+    }
+
+    .site-header {
+      text-align: center;
+      margin-bottom: 30px;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+    }
+
+    .site-header h1 { font-size: 2.8rem; margin-bottom: 5px; }
+
+    /* Grille d'actualités */
+    .actu-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+    }
+
+    .actu-card {
+      background: var(--card-bg);
+      backdrop-filter: var(--glass-blur);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .actu-card img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+    }
+
+    .actu-body {
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+    }
+
+    .actu-title { font-size: 1.3rem; margin-bottom: 10px; color: var(--text-color); }
+    .actu-content { font-size: 0.95rem; color: var(--subtext-color); line-height: 1.5; flex-grow: 1; white-space: pre-line; }
+    .actu-date { font-size: 0.8rem; color: var(--subtext-color); opacity: 0.7; margin-top: 15px; }
   </style>
 </head>
 <body>
 
-  <div class="container">
-    <h1>Fil d'Actualités</h1>
+  <!-- Barre supérieure style onglet Google + Liens sociaux -->
+  <header class="chrome-bar">
+    <nav class="tabs-container">
+      <a href="/" class="google-tab active">🌐 Accueil</a>
+      <a href="/admin" class="google-tab">⚙️ Administration</a>
+    </nav>
+    <div class="social-links">
+      <a href="https://discord.gg" target="_blank" class="social-btn discord" title="Discord">DC</a>
+      <a href="https://youtube.com" target="_blank" class="social-btn youtube" title="YouTube">YT</a>
+      <a href="https://twitch.tv" target="_blank" class="social-btn twitch" title="Twitch">TW</a>
+    </div>
+  </header>
 
-    <!-- Formulaire d'ajout -->
-    <div class="form-card">
-      <h2>Publier un article</h2>
-      <form id="actuForm">
-        <div class="form-group">
-          <label for="title">Titre</label>
-          <input type="text" id="title" required>
-        </div>
-        <div class="form-group">
-          <label for="content">Contenu</label>
-          <textarea id="content" required></textarea>
-        </div>
-        <div class="form-group">
-          <label for="image">Image (optionnel)</label>
-          <input type="file" id="image" accept="image/*">
-        </div>
-        <button type="submit">Publier</button>
-      </form>
+  <!-- Barre de réglages d'apparence -->
+  <div class="controls-bar">
+    <span>🎨 <strong>Apparence</strong></span>
+    <div>
+      <button class="control-btn" id="themeToggle">Sombre / Clair</button>
+      <button class="control-btn" id="glassToggle">Liquid Glass / Opaque</button>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="site-header">
+      <h1>Le Daily Scoop</h1>
+      <p>Toutes les dernières actualités en direct</p>
     </div>
 
-    <!-- Conteneur des actualités -->
-    <div id="actuFeed"></div>
+    <!-- Grille des articles -->
+    <div id="actuFeed" class="actu-grid"></div>
   </div>
 
   <script>
-    const actuForm = document.getElementById('actuForm');
-    const actuFeed = document.getElementById('actuFeed');
+    // Gestion du thème Sombre/Clair & Glassmorphism
+    const themeToggle = document.getElementById('themeToggle');
+    const glassToggle = document.getElementById('glassToggle');
 
-    // Charger les actualités au démarrage
+    themeToggle.addEventListener('click', () => {
+      document.body.classList.toggle('light-theme');
+      localStorage.setItem('theme', document.body.classList.contains('light-theme') ? 'light' : 'dark');
+    });
+
+    glassToggle.addEventListener('click', () => {
+      document.body.classList.toggle('opaque-mode');
+      localStorage.setItem('glass', document.body.classList.contains('opaque-mode') ? 'opaque' : 'glass');
+    });
+
+    // Restauration des préférences enregistrées
+    if (localStorage.getItem('theme') === 'light') document.body.classList.add('light-theme');
+    if (localStorage.getItem('glass') === 'opaque') document.body.classList.add('opaque-mode');
+
+    // Chargement des actualités
     async function loadArticles() {
+      const feed = document.getElementById('actuFeed');
       try {
         const res = await fetch('/api/actu');
         const articles = await res.json();
-        
-        actuFeed.innerHTML = articles.map(art => `
-          <div class="actu-card">
+
+        if (articles.length === 0) {
+          feed.innerHTML = '<p style="text-align: center; grid-column: 1/-1;">Aucun article publié pour le moment.</p>';
+          return;
+        }
+
+        feed.innerHTML = articles.map(art => `
+          <article class="actu-card">
             ${art.image ? `<img src="${art.image}" alt="${art.title}">` : ''}
             <div class="actu-body">
-              <h3>${art.title}</h3>
-              <p>${art.content}</p>
-              <div class="actu-date">Publié le ${new Date(art.date).toLocaleDateString('fr-FR')}</div>
-              <button class="btn-delete" onclick="deleteArticle(${art.id})">Supprimer</button>
+              <h2 class="actu-title">${art.title}</h2>
+              <p class="actu-content">${art.content}</p>
+              <div class="actu-date">Publié le ${new Date(art.date).toLocaleDateString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</div>
             </div>
-          </div>
+          </article>
         `).join('');
       } catch (err) {
-        console.error('Erreur lors du chargement des articles:', err);
-      }
-    }
-
-    // Soumission du formulaire
-    actuForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const formData = new FormData();
-      formData.append('title', document.getElementById('title').value);
-      formData.append('content', document.getElementById('content').value);
-      
-      const imageFile = document.getElementById('image').files[0];
-      if (imageFile) {
-        formData.append('image', imageFile);
-      }
-
-      await fetch('/api/actu', {
-        method: 'POST',
-        body: formData
-      });
-
-      actuForm.reset();
-      loadArticles();
-    });
-
-    // Supprimer un article
-    async function deleteArticle(id) {
-      if (confirm('Voulez-vous vraiment supprimer cet article ?')) {
-        await fetch(`/api/actu/${id}`, { method: 'DELETE' });
-        loadArticles();
+        feed.innerHTML = '<p style="text-align: center; grid-column: 1/-1; color: #ff6b6b;">Erreur de chargement des articles.</p>';
       }
     }
 
