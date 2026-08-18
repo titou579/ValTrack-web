@@ -152,6 +152,22 @@
       align-items: center;
       border-bottom: 1px solid var(--glass-border);
       padding: 10px 0;
+      gap: 15px;
+    }
+
+    .item-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .img-preview {
+      width: 50px;
+      height: 50px;
+      object-fit: cover;
+      border-radius: 6px;
+      border: 1px solid var(--glass-border);
+      background: #eee;
     }
   </style>
 </head>
@@ -200,20 +216,6 @@
       <hr style="border:0; border-top:1px solid var(--glass-border); margin:20px 0;">
       <h3>Actualités publiées</h3>
       <div id="list-actus"></div>
-    </div>
-
-    <!-- Annonces -->
-    <div class="card">
-      <h2>Ajouter une Annonce</h2>
-      <input type="text" id="vinted-titre" placeholder="Titre de l'annonce">
-      <input type="text" id="vinted-prix" placeholder="Prix (ex: 15)">
-      <input type="text" id="vinted-lien" placeholder="Lien de l'annonce (Leboncoin, Vinted...)">
-      <label>Photo du produit (.png, .gif, .webp, .jpg) :</label>
-      <input type="file" id="vinted-file" accept="image/*">
-      <button onclick="ajouterVinted()">Ajouter l'annonce</button>
-      <hr style="border:0; border-top:1px solid var(--glass-border); margin:20px 0;">
-      <h3>Annonces en ligne</h3>
-      <div id="list-vinted"></div>
     </div>
   </div>
 </div>
@@ -284,7 +286,6 @@
   async function chargerToutesLesDonnees() {
     chargerCategories();
     chargerActus();
-    chargerVinted();
   }
 
   async function chargerCategories() {
@@ -307,6 +308,7 @@
 
   async function ajouterCategorie() {
     const nom = document.getElementById('cat-nom').value;
+    if(!nom.trim()) return;
     await fetch('/api/categories', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
@@ -329,83 +331,72 @@
     const list = document.getElementById('list-actus');
     list.innerHTML = '';
     actus.forEach(a => {
+      // Normalisation de l'URL de l'image
+      let imgTag = '';
+      if (a.image) {
+        const imagePath = a.image.startsWith('/') ? a.image : '/' + a.image;
+        imgTag = `<img src="${imagePath}" class="img-preview" alt="Aperçu" onerror="this.style.display='none'">`;
+      }
+
       list.innerHTML += `
         <div class="item-row">
-          <span><strong>${a.titre}</strong> (${a.date})</span>
+          <div class="item-info">
+            ${imgTag}
+            <div>
+              <strong>${a.titre}</strong>
+              <div style="font-size:0.8em; color:var(--text-muted);">${a.date || ''}</div>
+            </div>
+          </div>
           <button class="btn-danger" onclick="supprimerActu(${a.id})">Supprimer</button>
         </div>`;
     });
   }
 
   async function ajouterActu() {
-    const formData = new FormData();
-    formData.append('category_id', document.getElementById('actu-cat').value);
-    formData.append('titre', document.getElementById('actu-titre').value);
-    formData.append('contenu', document.getElementById('actu-contenu').value);
-    
+    const titre = document.getElementById('actu-titre').value;
+    const contenu = document.getElementById('actu-contenu').value;
+    const category_id = document.getElementById('actu-cat').value;
     const fileInput = document.getElementById('actu-file');
+
+    if (!titre.trim() || !category_id) {
+      alert("Veuillez renseigner le titre et choisir une catégorie.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('category_id', category_id);
+    formData.append('titre', titre);
+    formData.append('contenu', contenu);
+    
     if (fileInput.files[0]) {
       formData.append('image', fileInput.files[0]);
     }
 
-    await fetch('/api/actu', {
-      method: 'POST',
-      headers: { 'Authorization': `Bearer ${token}` },
-      body: formData
-    });
+    try {
+      const res = await fetch('/api/actu', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+        body: formData
+      });
 
-    document.getElementById('actu-titre').value = '';
-    document.getElementById('actu-contenu').value = '';
-    fileInput.value = '';
-    chargerActus();
+      if (res.ok) {
+        document.getElementById('actu-titre').value = '';
+        document.getElementById('actu-contenu').value = '';
+        fileInput.value = '';
+        chargerActus();
+      } else {
+        alert("Erreur lors de la publication de l'article.");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Erreur réseau lors de l'envoi.");
+    }
   }
 
   async function supprimerActu(id) {
+    if(!confirm("Voulez-vous vraiment supprimer cet article ?")) return;
     await fetch(`/api/actu/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
     chargerActus();
-  }
-
-  async function chargerVinted() {
-    const res = await fetch('/api/vinted');
-    const items = await res.json();
-    const list = document.getElementById('list-vinted');
-    list.innerHTML = '';
-    items.forEach(v => {
-      list.innerHTML += `
-        <div class="item-row">
-          <span><strong>${v.titre}</strong> - ${v.prix} €</span>
-          <button class="btn-danger" onclick="supprimerVinted(${v.id})">Supprimer</button>
-        </div>`;
-    });
-  }
-
-  async function ajouterVinted() {
-    const formData = new FormData();
-    formData.append('titre', document.getElementById('vinted-titre').value);
-    formData.append('prix', document.getElementById('vinted-prix').value);
-    formData.append('lien', document.getElementById('vinted-lien').value);
-
-    const fileInput = document.getElementById('vinted-file');
-    if (fileInput.files[0]) {
-      formData.append('image', fileInput.files[0]);
-    }
-
-    await fetch('/api/vinted', {
-      method: 'POST',
-      headers: { 'Authorization': `Bearer ${token}` },
-      body: formData
-    });
-
-    document.getElementById('vinted-titre').value = '';
-    document.getElementById('vinted-prix').value = '';
-    document.getElementById('vinted-lien').value = '';
-    fileInput.value = '';
-    chargerVinted();
-  }
-
-  async function supprimerVinted(id) {
-    await fetch(`/api/vinted/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
-    chargerVinted();
   }
 
   initialiserApparence();
