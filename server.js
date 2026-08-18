@@ -7,7 +7,7 @@ const Database = require('better-sqlite3');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// S'assurer que le dossier uploads existe pour éviter les erreurs Multer
+// Création du dossier uploads
 const uploadDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
@@ -27,7 +27,7 @@ db.exec(`
   )
 `);
 
-// Configuration de Multer pour le stockage des images
+// Configuration Multer
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, uploadDir);
@@ -39,14 +39,29 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-// Middlewares pour les fichiers statiques et le JSON
+// Middlewares
 app.use(express.json());
-app.use(express.static(path.join(__dirname)));
+
+// Servir les fichiers du dossier public s'il existe, sinon la racine
+const publicDir = fs.existsSync(path.join(__dirname, 'public')) 
+  ? path.join(__dirname, 'public') 
+  : __dirname;
+
+app.use(express.static(publicDir));
 app.use('/uploads', express.static(uploadDir));
+
+// --- ROUTES PAGES HTML ---
+
+app.get('/', (req, res) => {
+  res.sendFile(path.join(publicDir, 'index.html'));
+});
+
+app.get('/admin', (req, res) => {
+  res.sendFile(path.join(publicDir, 'admin.html'));
+});
 
 // --- ROUTES API ---
 
-// 1. Récupérer toutes les actualités
 app.get('/api/actu', (req, res) => {
   try {
     const articles = db.prepare('SELECT * FROM actu ORDER BY date DESC').all();
@@ -56,7 +71,6 @@ app.get('/api/actu', (req, res) => {
   }
 });
 
-// 2. Ajouter une nouvelle actualité
 app.post('/api/actu', upload.single('image'), (req, res) => {
   try {
     const { title, content } = req.body;
@@ -71,7 +85,6 @@ app.post('/api/actu', upload.single('image'), (req, res) => {
   }
 });
 
-// 3. Supprimer une actualité
 app.delete('/api/actu/:id', (req, res) => {
   try {
     const stmt = db.prepare('DELETE FROM actu WHERE id = ?');
@@ -82,12 +95,6 @@ app.delete('/api/actu/:id', (req, res) => {
   }
 });
 
-// --- ROUTE PRINCIPALE (Affiche index.html) ---
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
-});
-
-// Lancement du serveur
 app.listen(PORT, () => {
   console.log(`Serveur démarré sur le port ${PORT}`);
 });
