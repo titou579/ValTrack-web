@@ -9,28 +9,36 @@
       --bg-overlay: rgba(255, 255, 255, 0.45);
       --glass-bg: rgba(255, 255, 255, 0.65);
       --glass-border: rgba(255, 255, 255, 0.6);
-      --glass-shadow: rgba(31, 38, 135, 0.15);
-      --text-main: #1e293b;
-      --text-muted: #64748b;
-      --card-bg: rgba(255, 255, 255, 0.7);
-      --accent-color: #c0392b;
+      --glass-shadow: rgba(31, 38, 135, 0.12);
+      --text-main: #1f1f1f;
+      --text-muted: #5f6368;
+      --card-bg: rgba(255, 255, 255, 0.8);
+      --accent-color: #1a73e8; /* Bleu Google */
+      --tab-bg: rgba(255, 255, 255, 0.7);
+      --tab-hover: #f1f3f4;
+      --tab-active-bg: #e8f0fe;
+      --tab-active-text: #1a73e8;
     }
 
     [data-theme="dark"] {
-      --bg-overlay: rgba(15, 23, 42, 0.65);
-      --glass-bg: rgba(30, 41, 59, 0.7);
+      --bg-overlay: rgba(15, 23, 42, 0.7);
+      --glass-bg: rgba(30, 41, 59, 0.75);
       --glass-border: rgba(255, 255, 255, 0.12);
       --glass-shadow: rgba(0, 0, 0, 0.4);
-      --text-main: #f8fafc;
-      --text-muted: #94a3b8;
-      --card-bg: rgba(15, 23, 42, 0.6);
-      --accent-color: #e74c3c;
+      --text-main: #e8eaed;
+      --text-muted: #9aa0a6;
+      --card-bg: rgba(15, 23, 42, 0.65);
+      --accent-color: #8ab4f8; /* Bleu Google Dark */
+      --tab-bg: rgba(30, 41, 59, 0.8);
+      --tab-hover: #3c4043;
+      --tab-active-bg: #2d3748;
+      --tab-active-text: #8ab4f8;
     }
 
-    * { box-sizing: border-box; transition: background 0.3s, color 0.3s; }
+    * { box-sizing: border-box; transition: background 0.25s, color 0.25s, border-color 0.25s; }
 
     body {
-      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      font-family: 'Google Sans', Roboto, 'Segoe UI', system-ui, -apple-system, sans-serif;
       margin: 0;
       min-height: 100vh;
       display: flex;
@@ -40,9 +48,10 @@
       color: var(--text-main);
     }
 
+    /* Bannière compacte pour remonter les éléments */
     .banner-container {
       width: 100%;
-      height: 220px;
+      height: 160px;
       background: url('banner.jpg') no-repeat center center;
       background-size: cover;
       position: relative;
@@ -52,7 +61,7 @@
     .banner-overlay {
       position: absolute;
       inset: 0;
-      background: linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.75) 100%);
+      background: linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.7) 100%);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -60,27 +69,28 @@
 
     .banner-overlay h1 {
       margin: 0;
-      font-size: 2.8em;
+      font-size: 2.4em;
       color: #ffffff;
       text-shadow: 0 4px 12px rgba(0,0,0,0.6);
-      letter-spacing: 1px;
-      font-weight: 800;
+      letter-spacing: -0.5px;
+      font-weight: 700;
     }
 
     .theme-toggle-btn {
       position: absolute;
-      top: 20px;
-      right: 20px;
+      top: 15px;
+      right: 15px;
       background: rgba(255, 255, 255, 0.2);
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
       border: 1px solid rgba(255, 255, 255, 0.4);
       color: white;
-      padding: 10px 16px;
-      border-radius: 30px;
+      padding: 8px 14px;
+      border-radius: 20px;
       cursor: pointer;
-      font-weight: bold;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      font-weight: 500;
+      font-size: 0.9em;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
       z-index: 10;
     }
 
@@ -88,71 +98,111 @@
       background: rgba(255, 255, 255, 0.35);
     }
 
+    /* Barre d'onglets style Google centrée et positionnée haut */
+    .nav-tabs-wrapper {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--glass-bg);
+      backdrop-filter: blur(16px) saturate(180%);
+      -webkit-backdrop-filter: blur(16px) saturate(180%);
+      border-bottom: 1px solid var(--glass-border);
+      box-shadow: 0 4px 20px var(--glass-shadow);
+      padding: 10px 0;
+    }
+
+    .tabs-container {
+      max-width: 950px;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      scrollbar-width: none; /* Cache la barre de défilement */
+    }
+
+    .tabs-container::-webkit-scrollbar {
+      display: none;
+    }
+
+    /* Style pilule Google */
+    .tab-btn {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text-muted);
+      padding: 8px 18px;
+      border-radius: 24px;
+      cursor: pointer;
+      font-weight: 500;
+      font-size: 0.95em;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .tab-btn:hover {
+      background: var(--tab-hover);
+      color: var(--text-main);
+    }
+
+    .tab-btn.active {
+      background: var(--tab-active-bg);
+      color: var(--tab-active-text);
+      border-color: rgba(26, 115, 232, 0.2);
+      font-weight: 600;
+    }
+
     .container {
       max-width: 950px;
-      margin: 30px auto;
+      margin: 20px auto;
       padding: 0 20px;
       flex: 1;
       width: 100%;
     }
 
-    /* Style Liquid Glass (Verre Dépoli) */
+    /* Boîtes de contenu Liquid Glass */
     section {
       background: var(--glass-bg);
       backdrop-filter: blur(16px) saturate(180%);
       -webkit-backdrop-filter: blur(16px) saturate(180%);
-      padding: 30px;
-      border-radius: 20px;
-      margin-bottom: 30px;
+      padding: 25px;
+      border-radius: 16px;
+      margin-bottom: 25px;
       border: 1px solid var(--glass-border);
       box-shadow: 0 8px 32px 0 var(--glass-shadow);
     }
 
     h2 {
       margin-top: 0;
-      border-bottom: 3px solid var(--accent-color);
-      padding-bottom: 10px;
+      padding-bottom: 12px;
       color: var(--text-main);
-      font-size: 1.6em;
-    }
-
-    .tabs {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 20px;
-      flex-wrap: wrap;
-    }
-    
-    .tab-btn {
-      background: var(--card-bg);
-      border: 1px solid var(--glass-border);
-      color: var(--text-main);
-      padding: 8px 20px;
-      border-radius: 30px;
-      cursor: pointer;
+      font-size: 1.4em;
       font-weight: 600;
-      backdrop-filter: blur(8px);
-    }
-    
-    .tab-btn:hover, .tab-btn.active {
-      background: var(--accent-color);
-      color: white;
-      border-color: var(--accent-color);
-      box-shadow: 0 4px 12px rgba(192, 57, 43, 0.3);
+      border-bottom: 1px solid var(--glass-border);
     }
 
     .card {
       background: var(--card-bg);
       border: 1px solid var(--glass-border);
-      border-left: 5px solid #27ae60;
-      padding: 18px 22px;
-      margin-bottom: 15px;
+      padding: 18px;
+      margin-bottom: 12px;
       border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+    }
+
+    .card h3 { 
+      margin: 0 0 6px 0; 
+      color: var(--accent-color); 
+      font-size: 1.15em;
     }
     
-    .card h3 { margin: 0 0 8px 0; color: #27ae60; }
-    .card p { margin: 0; line-height: 1.6; color: var(--text-main); }
+    .card p { 
+      margin: 0; 
+      line-height: 1.5; 
+      color: var(--text-main); 
+      font-size: 0.98em;
+    }
 
     .vinted-card {
       display: flex;
@@ -160,49 +210,51 @@
       align-items: center;
       background: var(--card-bg);
       border: 1px solid var(--glass-border);
-      padding: 18px 22px;
-      margin-bottom: 12px;
+      padding: 16px 20px;
+      margin-bottom: 10px;
       border-radius: 12px;
     }
-    
+
     .vinted-btn {
       background: #00a8ff;
       color: white;
       text-decoration: none;
-      padding: 10px 18px;
-      border-radius: 8px;
-      font-weight: bold;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-weight: 500;
+      font-size: 0.9em;
     }
 
     footer {
-      background: rgba(15, 23, 42, 0.85);
+      background: rgba(15, 23, 42, 0.88);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
       color: white;
       text-align: center;
-      padding: 30px 20px;
+      padding: 25px 20px;
       margin-top: auto;
       border-top: 1px solid var(--glass-border);
     }
-    
-    footer p { margin-top: 0; color: #cbd5e1; font-size: 0.95em; }
-    
+
+    footer p { margin-top: 0; color: #cbd5e1; font-size: 0.9em; }
+
     .socials {
       display: flex;
       justify-content: center;
-      gap: 15px;
+      gap: 12px;
       flex-wrap: wrap;
-      margin-top: 15px;
+      margin-top: 12px;
     }
-    
+
     .btn-social {
-      padding: 10px 22px;
+      padding: 8px 18px;
       text-decoration: none;
       color: white;
-      border-radius: 10px;
-      font-weight: bold;
+      border-radius: 20px;
+      font-weight: 500;
+      font-size: 0.9em;
     }
-    
+
     .twitch { background-color: #9146FF; }
     .discord { background-color: #5865F2; }
     .youtube { background-color: #FF0000; }
@@ -217,10 +269,14 @@
     </div>
   </div>
 
+  <!-- Barre d'onglets style Google collée sous la bannière -->
+  <div class="nav-tabs-wrapper">
+    <div class="tabs-container" id="tabs-container"></div>
+  </div>
+
   <div class="container">
     <section>
-      <h2>Actualités</h2>
-      <div class="tabs" id="tabs-container"></div>
+      <h2>Flux d'actualités</h2>
       <div id="actu-container">Chargement des actualités...</div>
     </section>
 
@@ -240,7 +296,6 @@
   </footer>
 
   <script>
-    // Gestion du thème clair / sombre
     function initialiserTheme() {
       const themeSauvegarde = localStorage.getItem('theme') || 'light';
       document.documentElement.setAttribute('data-theme', themeSauvegarde);
@@ -293,7 +348,7 @@
       const div = document.getElementById('actu-container');
 
       if (actus.length === 0) {
-        div.innerHTML = '<p style="color:var(--text-muted);">Aucune actualité dans cette catégorie pour le moment.</p>';
+        div.innerHTML = '<p style="color:var(--text-muted); font-size:0.95em;">Aucune actualité dans cette catégorie pour le moment.</p>';
         return;
       }
 
@@ -301,7 +356,7 @@
       actus.forEach(a => {
         div.innerHTML += `
           <div class="card">
-            <h3>${a.titre} <small style="font-size:0.75em; color:var(--text-muted); font-weight:normal;">(${a.date})</small></h3>
+            <h3>${a.titre} <small style="font-size:0.75em; color:var(--text-muted); font-weight:normal;">• ${a.date}</small></h3>
             <p>${a.contenu}</p>
           </div>
         `;
@@ -314,7 +369,7 @@
       const div = document.getElementById('vinted-container');
 
       if (articles.length === 0) {
-        div.innerHTML = '<p style="color:var(--text-muted);">Aucune annonce Vinted en cours.</p>';
+        div.innerHTML = '<p style="color:var(--text-muted); font-size:0.95em;">Aucune annonce Vinted en cours.</p>';
         return;
       }
 
@@ -323,7 +378,7 @@
         div.innerHTML += `
           <div class="vinted-card">
             <div>
-              <strong>${v.titre}</strong> - <span style="color:#27ae60; font-weight:bold;">${v.prix} €</span>
+              <strong>${v.titre}</strong> — <span style="color:#27ae60; font-weight:bold;">${v.prix} €</span>
             </div>
             <a href="${v.lien}" target="_blank" class="vinted-btn">Voir sur Vinted</a>
           </div>
