@@ -1,10 +1,17 @@
 const express = require('express');
 const path = require('path');
+const fs = require('fs');
 const multer = require('multer');
 const Database = require('better-sqlite3');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// S'assurer que le dossier uploads existe pour éviter les erreurs Multer
+const uploadDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
 
 // Base de données SQLite
 const db = new Database('database.db');
@@ -20,10 +27,10 @@ db.exec(`
   )
 `);
 
-// Configuration de Multer pour l'envoi d'images
+// Configuration de Multer pour le stockage des images
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'uploads/');
+    cb(null, uploadDir);
   },
   filename: (req, file, cb) => {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
@@ -32,10 +39,10 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-// Middlewares
+// Middlewares pour les fichiers statiques et le JSON
 app.use(express.json());
-app.use(express.static(__dirname));
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use(express.static(path.join(__dirname)));
+app.use('/uploads', express.static(uploadDir));
 
 // --- ROUTES API ---
 
@@ -75,7 +82,12 @@ app.delete('/api/actu/:id', (req, res) => {
   }
 });
 
+// --- ROUTE PRINCIPALE (Affiche index.html) ---
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
+
 // Lancement du serveur
 app.listen(PORT, () => {
-  console.log(`Serveur démarré sur http://localhost:${PORT}`);
+  console.log(`Serveur démarré sur le port ${PORT}`);
 });
