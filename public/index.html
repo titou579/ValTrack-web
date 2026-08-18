@@ -3,267 +3,243 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Le Daily Scoop - Accueil</title>
+  <title>Accueil & Actualités</title>
   <style>
-    :root {
-      --bg-image: url('https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=1920&auto=format&fit=crop');
-      --card-bg: rgba(20, 20, 30, 0.65);
-      --card-border: rgba(255, 255, 255, 0.18);
-      --text-color: #ffffff;
-      --subtext-color: #e0e0e0;
-      --accent-color: #7289da;
-      --glass-blur: blur(16px);
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: sans-serif;
     }
 
-    body.light-theme {
-      --card-bg: rgba(255, 255, 255, 0.75);
-      --card-border: rgba(0, 0, 0, 0.1);
-      --text-color: #1a1a1a;
-      --subtext-color: #4a4a4a;
-      --accent-color: #5865f2;
-    }
-
-    body.opaque-mode {
-      --glass-blur: blur(0px);
-      --card-bg: #1e1f29;
-    }
-
-    body.light-theme.opaque-mode {
-      --card-bg: #ffffff;
-    }
-
-    * { box-sizing: border-box; margin: 0; padding: 0; transition: background 0.3s, color 0.3s; }
-
+    /* Fond d'écran avec tes 2 images locales (accueil et accueil 2) */
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: var(--bg-image) no-repeat center center fixed;
-      background-size: cover;
-      color: var(--text-color);
+      background-image: url('accueil.jpg'), url('accueil2.jpg');
+      background-position: top center, bottom center;
+      background-repeat: no-repeat, no-repeat;
+      background-size: cover, cover;
+      background-attachment: fixed;
+      color: #333;
       min-height: 100vh;
-      padding-bottom: 40px;
+      padding: 20px;
     }
 
-    /* Barre supérieure / Onglets style Chrome/Google */
-    .chrome-bar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: rgba(10, 10, 15, 0.8);
-      backdrop-filter: blur(10px);
-      padding: 10px 20px;
-      border-bottom: 1px solid var(--card-border);
-    }
-
-    .tabs-container {
-      display: flex;
-      gap: 8px;
-    }
-
-    .google-tab {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 18px;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 12px 12px 0 0;
-      color: #fff;
-      text-decoration: none;
-      font-size: 0.9rem;
-      font-weight: 500;
-      border: 1px solid transparent;
-    }
-
-    .google-tab.active {
-      background: var(--card-bg);
-      backdrop-filter: var(--glass-blur);
-      border-color: var(--card-border);
-      color: var(--text-color);
-    }
-
-    .social-links {
-      display: flex;
-      gap: 12px;
-    }
-
-    .social-btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.15);
-      color: #fff;
-      text-decoration: none;
-      font-weight: bold;
-      transition: transform 0.2s, background 0.2s;
-    }
-
-    .social-btn:hover { transform: scale(1.1); }
-    .social-btn.discord { background: #5865F2; }
-    .social-btn.youtube { background: #FF0000; }
-    .social-btn.twitch { background: #9146FF; }
-
-    /* Panneau de configuration (Thème & Style) */
-    .controls-bar {
-      max-width: 1000px;
-      margin: 20px auto 10px;
-      padding: 12px 20px;
-      background: var(--card-bg);
-      backdrop-filter: var(--glass-blur);
-      border: 1px solid var(--card-border);
-      border-radius: 16px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-
-    .control-btn {
-      background: rgba(255, 255, 255, 0.2);
-      border: 1px solid var(--card-border);
-      color: var(--text-color);
-      padding: 6px 14px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 0.85rem;
-      font-weight: 600;
-    }
-
-    .control-btn:hover { background: rgba(255, 255, 255, 0.3); }
-
-    /* Page Container */
     .container {
-      max-width: 1000px;
-      margin: 20px auto;
-      padding: 0 15px;
+      max-width: 900px;
+      margin: 0 auto;
+      background: rgba(255, 255, 255, 0.92);
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
     }
 
-    .site-header {
-      text-align: center;
-      margin-bottom: 30px;
-      text-shadow: 0 2px 10px rgba(0,0,0,0.5);
-    }
-
-    .site-header h1 { font-size: 2.8rem; margin-bottom: 5px; }
-
-    /* Grille d'actualités */
-    .actu-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 20px;
-    }
-
-    .actu-card {
-      background: var(--card-bg);
-      backdrop-filter: var(--glass-blur);
-      border: 1px solid var(--card-border);
-      border-radius: 16px;
-      overflow: hidden;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    header {
       display: flex;
-      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid #ddd;
+      padding-bottom: 10px;
+      margin-bottom: 20px;
     }
 
-    .actu-card img {
+    nav button {
+      padding: 8px 16px;
+      margin-right: 5px;
+      cursor: pointer;
+      border: none;
+      background: #e0e0e0;
+      border-radius: 4px;
+      font-weight: bold;
+    }
+
+    nav button.active {
+      background: #007bff;
+      color: white;
+    }
+
+    .section {
+      display: none;
+    }
+
+    .section.active {
+      display: block;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .form-group input, .form-group textarea {
       width: 100%;
-      height: 200px;
-      object-fit: cover;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
     }
 
-    .actu-body {
-      padding: 18px;
-      display: flex;
-      flex-direction: column;
-      flex-grow: 1;
+    .btn {
+      padding: 10px 20px;
+      background: #28a745;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
     }
 
-    .actu-title { font-size: 1.3rem; margin-bottom: 10px; color: var(--text-color); }
-    .actu-content { font-size: 0.95rem; color: var(--subtext-color); line-height: 1.5; flex-grow: 1; white-space: pre-line; }
-    .actu-date { font-size: 0.8rem; color: var(--subtext-color); opacity: 0.7; margin-top: 15px; }
+    .btn-danger {
+      background: #dc3545;
+    }
+
+    #login-form {
+      max-width: 400px;
+      margin: 40px auto;
+      padding: 20px;
+      background: #f8f9fa;
+      border-radius: 6px;
+      border: 1px solid #ddd;
+    }
   </style>
 </head>
 <body>
 
-  <!-- Barre supérieure style onglet Google + Liens sociaux -->
-  <header class="chrome-bar">
-    <nav class="tabs-container">
-      <a href="/" class="google-tab active">🌐 Accueil</a>
-      <a href="/admin" class="google-tab">⚙️ Administration</a>
-    </nav>
-    <div class="social-links">
-      <a href="https://discord.gg" target="_blank" class="social-btn discord" title="Discord">DC</a>
-      <a href="https://youtube.com" target="_blank" class="social-btn youtube" title="YouTube">YT</a>
-      <a href="https://twitch.tv" target="_blank" class="social-btn twitch" title="Twitch">TW</a>
-    </div>
-  </header>
-
-  <!-- Barre de réglages d'apparence -->
-  <div class="controls-bar">
-    <span>🎨 <strong>Apparence</strong></span>
-    <div>
-      <button class="control-btn" id="themeToggle">Sombre / Clair</button>
-      <button class="control-btn" id="glassToggle">Liquid Glass / Opaque</button>
-    </div>
-  </div>
-
   <div class="container">
-    <div class="site-header">
-      <h1>Le Daily Scoop</h1>
-      <p>Toutes les dernières actualités en direct</p>
-    </div>
+    <header>
+      <h1>Mon Site</h1>
+      <!-- L'onglet Admin est totalement masqué ici -->
+      <nav>
+        <button class="nav-btn active" onclick="showSection('accueil')">Accueil</button>
+        <button class="nav-btn" onclick="showSection('actus')">Actualités</button>
+      </nav>
+    </header>
 
-    <!-- Grille des articles -->
-    <div id="actuFeed" class="actu-grid"></div>
+    <!-- SECTION ACCUEIL -->
+    <main id="accueil" class="section active">
+      <h2>Bienvenue</h2>
+      <p>Contenu de la page d'accueil.</p>
+    </main>
+
+    <!-- SECTION ACTUALITÉS -->
+    <main id="actus" class="section">
+      <h2>Dernières Actualités</h2>
+      <div id="news-list">
+        <p>Aucune actualité pour le moment.</p>
+      </div>
+    </main>
+
+    <!-- SECTION ADMIN (ACCESSIBLE UNIQUEMENT VIA #admin DANS L'URL) -->
+    <main id="admin" class="section">
+      <!-- FORMULAIRE DE CONNEXION -->
+      <div id="login-form">
+        <h3>Connexion Administrateur</h3>
+        <br>
+        <div class="form-group">
+          <label for="admin-pass">Mot de passe requi :</label>
+          <input type="password" id="admin-pass" placeholder="Entrez le mot de passe">
+        </div>
+        <button class="btn" onclick="checkPassword()">Se connecter</button>
+        <p id="login-error" style="color: red; margin-top: 10px; display: none;">Mot de passe incorrect.</p>
+      </div>
+
+      <!-- PANEL ADMIN (MASQUÉ TANT QUE NON AUTHENTIFIÉ) -->
+      <div id="admin-panel" style="display: none;">
+        <h2>Espace Administration</h2>
+        <br>
+        <div class="form-group">
+          <h3>Ajouter une actualité</h3>
+          <br>
+          <label for="news-title">Titre :</label>
+          <input type="text" id="news-title">
+        </div>
+        <div class="form-group">
+          <label for="news-content">Contenu :</label>
+          <textarea id="news-content" rows="4"></textarea>
+        </div>
+        <button class="btn" onclick="addNews()">Publier</button>
+        <button class="btn btn-danger" onclick="logoutAdmin()" style="margin-left: 10px;">Déconnexion</button>
+      </div>
+    </main>
   </div>
 
   <script>
-    // Gestion du thème Sombre/Clair & Glassmorphism
-    const themeToggle = document.getElementById('themeToggle');
-    const glassToggle = document.getElementById('glassToggle');
+    // Mot de passe d'accès admin
+    const ADMIN_PASSWORD = "MonSuperPass123!";
 
-    themeToggle.addEventListener('click', () => {
-      document.body.classList.toggle('light-theme');
-      localStorage.setItem('theme', document.body.classList.contains('light-theme') ? 'light' : 'dark');
-    });
+    function showSection(sectionId) {
+      document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
 
-    glassToggle.addEventListener('click', () => {
-      document.body.classList.toggle('opaque-mode');
-      localStorage.setItem('glass', document.body.classList.contains('opaque-mode') ? 'opaque' : 'glass');
-    });
+      const targetSection = document.getElementById(sectionId);
+      if (targetSection) {
+        targetSection.classList.add('active');
+      }
 
-    // Restauration des préférences enregistrées
-    if (localStorage.getItem('theme') === 'light') document.body.classList.add('light-theme');
-    if (localStorage.getItem('glass') === 'opaque') document.body.classList.add('opaque-mode');
+      // Gestion du bouton actif dans le menu
+      if (sectionId === 'accueil') document.querySelectorAll('.nav-btn')[0].classList.add('active');
+      if (sectionId === 'actus') document.querySelectorAll('.nav-btn')[1].classList.add('active');
+    }
 
-    // Chargement des actualités
-    async function loadArticles() {
-      const feed = document.getElementById('actuFeed');
-      try {
-        const res = await fetch('/api/actu');
-        const articles = await res.json();
-
-        if (articles.length === 0) {
-          feed.innerHTML = '<p style="text-align: center; grid-column: 1/-1;">Aucun article publié pour le moment.</p>';
-          return;
-        }
-
-        feed.innerHTML = articles.map(art => `
-          <article class="actu-card">
-            ${art.image ? `<img src="${art.image}" alt="${art.title}">` : ''}
-            <div class="actu-body">
-              <h2 class="actu-title">${art.title}</h2>
-              <p class="actu-content">${art.content}</p>
-              <div class="actu-date">Publié le ${new Date(art.date).toLocaleDateString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</div>
-            </div>
-          </article>
-        `).join('');
-      } catch (err) {
-        feed.innerHTML = '<p style="text-align: center; grid-column: 1/-1; color: #ff6b6b;">Erreur de chargement des articles.</p>';
+    // Détection de l'URL pour la navigation cachée (#admin)
+    function checkHash() {
+      if (window.location.hash === '#admin') {
+        showSection('admin');
       }
     }
 
+    window.addEventListener('hashchange', checkHash);
+    window.addEventListener('load', checkHash);
+
+    // Vérification du mot de passe
+    function checkPassword() {
+      const inputPass = document.getElementById('admin-pass').value;
+      const errorMsg = document.getElementById('login-error');
+
+      if (inputPass === ADMIN_PASSWORD) {
+        document.getElementById('login-form').style.display = 'none';
+        document.getElementById('admin-panel').style.display = 'block';
+        document.getElementById('admin-pass').value = '';
+        errorMsg.style.display = 'none';
+      } else {
+        errorMsg.style.display = 'block';
+      }
+    }
+
+    function logoutAdmin() {
+      document.getElementById('login-form').style.display = 'block';
+      document.getElementById('admin-panel').style.display = 'none';
+      window.location.hash = '';
+      showSection('accueil');
+    }
+
+    function addNews() {
+      const title = document.getElementById('news-title').value;
+      const content = document.getElementById('news-content').value;
+
+      if (!title || !content) {
+        alert('Veuillez remplir tous les champs.');
+        return;
+      }
+
+      const newsList = document.getElementById('news-list');
+      if (newsList.querySelector('p')) {
+        newsList.innerHTML = '';
+      }
+
+      const article = document.createElement('article');
+      article.style.marginBottom = '15px';
+      article.innerHTML = `<h3>${title}</h3><p>${content}</p><hr style="margin-top:10px;">`;
+      newsList.prepend(article);
+
+      document.getElementById('news-title').value = '';
+      document.getElementById('news-content').value = '';
+      alert('Actualité ajoutée !');
+    }
+  </script>
+</body>
+</html>
     loadArticles();
   </script>
 </body>
