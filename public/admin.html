@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin - ValTrackPlayer</title>
+  <style>
+    body { font-family: sans-serif; background: #121212; color: white; padding: 20px; max-width: 800px; margin: auto; }
+    input, textarea, select, button { width: 100%; padding: 10px; margin: 8px 0; box-sizing: border-box; border-radius: 6px; border: 1px solid #444; background: #222; color: white; }
+    button { background: #ff4757; font-weight: bold; cursor: pointer; border: none; }
+    button:hover { background: #ff6b81; }
+    .hidden { display: none; }
+    .item { background: #222; padding: 10px; margin-bottom: 8px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; }
+    .btn-del { width: auto; background: #ff3838; padding: 5px 12px; margin: 0; }
+    .block { background: #1a1a1a; padding: 20px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #333; }
+  </style>
+</head>
+<body>
+
+  <h1>Administration du site</h1>
+
+  <div id="login-section" class="block">
+    <h3>Connexion Sécurisée</h3>
+    <input type="password" id="password" placeholder="Mot de passe admin">
+    <button onclick="connexion()">Se connecter</button>
+    <p id="login-error" style="color:red;"></p>
+  </div>
+
+  <div id="admin-section" class="hidden">
+    <button onclick="deconnexion()" style="background:#555; margin-bottom: 20px;">Déconnexion</button>
+
+    <div class="block">
+      <h2>1. Gestion des Onglets / Catégories</h2>
+      <input type="text" id="cat-nom" placeholder="Nom du nouvel onglet">
+      <button onclick="ajouterCategorie()">Créer l'onglet</button>
+      <h3>Onglets existants</h3>
+      <div id="list-cats"></div>
+    </div>
+
+    <div class="block">
+      <h2>2. Publier une Actualité</h2>
+      <label>Choisir un onglet :</label>
+      <select id="actu-cat"></select>
+      <input type="text" id="actu-titre" placeholder="Titre">
+      <textarea id="actu-contenu" placeholder="Contenu"></textarea>
+      <button onclick="ajouterActu()">Publier</button>
+    </div>
+
+    <div class="block">
+      <h2>3. Ajouter une Annonce Vinted</h2>
+      <input type="text" id="vinted-titre" placeholder="Titre de l'article">
+      <input type="text" id="vinted-prix" placeholder="Prix (ex: 20.00)">
+      <input type="text" id="vinted-lien" placeholder="Lien Vinted">
+      <button onclick="ajouterVinted()">Ajouter</button>
+    </div>
+
+    <div class="block">
+      <h2>4. Supprimer des éléments</h2>
+      <h3>Actualités</h3>
+      <div id="list-actu"></div>
+      <h3>Annonces Vinted</h3>
+      <div id="list-vinted"></div>
+    </div>
+  </div>
+
+  <script>
+    let token = localStorage.getItem('token') || '';
+
+    if (token) afficherAdmin();
+
+    async function connexion() {
+      const password = document.getElementById('password').value;
+      const res = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password })
+      });
+      const data = await res.json();
+      if (data.token) {
+        token = data.token;
+        localStorage.setItem('token', token);
+        afficherAdmin();
+      } else {
+        document.getElementById('login-error').innerText = data.error;
+      }
+    }
+
+    function deconnexion() {
+      localStorage.removeItem('token');
+      location.reload();
+    }
+
+    function afficherAdmin() {
+      document.getElementById('login-section').classList.add('hidden');
+      document.getElementById('admin-section').classList.remove('hidden');
+      rafraichirListes();
+    }
+
+    async function rafraichirListes() {
+      const cats = await (await fetch('/api/categories')).json();
+      const listCats = document.getElementById('list-cats');
+      const selectCat = document.getElementById('actu-cat');
+      listCats.innerHTML = '';
+      selectCat.innerHTML = '';
+      cats.forEach(c => {
+        listCats.innerHTML += `<div class="item"><span>${c.nom}</span><button class="btn-del" onclick="supprimer('categories', ${c.id})">Supprimer</button></div>`;
+        selectCat.innerHTML += `<option value="${c.id}">${c.nom}</option>`;
+      });
+
+      const actus = await (await fetch('/api/actu')).json();
+      const listActu = document.getElementById('list-actu');
+      listActu.innerHTML = '';
+      actus.forEach(a => {
+        listActu.innerHTML += `<div class="item"><span>${a.titre}</span><button class="btn-del" onclick="supprimer('actu', ${a.id})">Supprimer</button></div>`;
+      });
+
+      const vinted = await (await fetch('/api/vinted')).json();
+      const listVinted = document.getElementById('list-vinted');
+      listVinted.innerHTML = '';
+      vinted.forEach(v => {
+        listVinted.innerHTML += `<div class="item"><span>${v.titre} (${v.prix}€)</span><button class="btn-del" onclick="supprimer('vinted', ${v.id})">Supprimer</button></div>`;
+      });
+    }
+
+    async function ajouterCategorie() {
+      const nom = document.getElementById('cat-nom').value;
+      await fetch('/api/categories', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify({ nom })
+      });
+      document.getElementById('cat-nom').value = '';
+      rafraichirListes();
+    }
+
+    async function ajouterActu() {
+      const category_id = document.getElementById('actu-cat').value;
+      const titre = document.getElementById('actu-titre').value;
+      const contenu = document.getElementById('actu-contenu').value;
+      await fetch('/api/actu', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify({ titre, contenu, category_id })
+      });
+      document.getElementById('actu-titre').value = '';
+      document.getElementById('actu-contenu').value = '';
+      rafraichirListes();
+    }
+
+    async function ajouterVinted() {
+      const titre = document.getElementById('vinted-titre').value;
+      const prix = document.getElementById('vinted-prix').value;
+      const lien = document.getElementById('vinted-lien').value;
+      await fetch('/api/vinted', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify({ titre, prix, lien, image_url: '' })
+      });
+      document.getElementById('vinted-titre').value = '';
+      document.getElementById('vinted-prix').value = '';
+      document.getElementById('vinted-lien').value = '';
+      rafraichirListes();
+    }
+
+    async function supprimer(type, id) {
+      await fetch(`/api/${type}/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+      rafraichirListes();
+    }
+  </script>
+</body>
+</html>
