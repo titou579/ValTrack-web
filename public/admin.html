@@ -5,36 +5,179 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Administration - Le daily scoop</title>
   <style>
-    body { font-family: 'Segoe UI', system-ui, sans-serif; margin: 0; padding: 20px; background: #f4f6f8; color: #333; }
+    :root {
+      --bg-overlay: rgba(255, 255, 255, 0.45);
+      --glass-bg: rgba(255, 255, 255, 0.7);
+      --glass-border: rgba(255, 255, 255, 0.6);
+      --glass-shadow: rgba(31, 38, 135, 0.15);
+      --backdrop-blur: blur(16px) saturate(180%);
+      --text-main: #1f1f1f;
+      --text-muted: #5f6368;
+      --input-bg: rgba(255, 255, 255, 0.8);
+      --accent-color: #1a73e8;
+    }
+
+    [data-theme="dark"] {
+      --bg-overlay: rgba(15, 23, 42, 0.75);
+      --glass-bg: rgba(30, 41, 59, 0.75);
+      --glass-border: rgba(255, 255, 255, 0.12);
+      --glass-shadow: rgba(0, 0, 0, 0.4);
+      --text-main: #e8eaed;
+      --text-muted: #9aa0a6;
+      --input-bg: rgba(15, 23, 42, 0.6);
+      --accent-color: #8ab4f8;
+    }
+
+    [data-glass="opaque"] {
+      --glass-bg: #ffffff;
+      --backdrop-blur: none;
+      --glass-border: #cbd5e1;
+      --input-bg: #ffffff;
+    }
+
+    [data-theme="dark"][data-glass="opaque"] {
+      --glass-bg: #1e293b;
+      --backdrop-blur: none;
+      --glass-border: #334155;
+      --input-bg: #0f172a;
+    }
+
+    * { box-sizing: border-box; transition: background 0.25s, color 0.25s, border-color 0.25s; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      margin: 0;
+      padding: 20px;
+      min-height: 100vh;
+      background: linear-gradient(var(--bg-overlay), var(--bg-overlay)), url('accueil 2.png') no-repeat center center fixed;
+      background-size: cover;
+      color: var(--text-main);
+    }
+
+    .header-bar {
+      max-width: 800px;
+      margin: 0 auto 20px auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .header-controls {
+      display: flex;
+      gap: 10px;
+    }
+
+    .ctrl-btn {
+      background: var(--glass-bg);
+      backdrop-filter: var(--backdrop-blur);
+      -webkit-backdrop-filter: var(--backdrop-blur);
+      border: 1px solid var(--glass-border);
+      color: var(--text-main);
+      padding: 8px 16px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.85em;
+      box-shadow: 0 4px 12px var(--glass-shadow);
+      width: auto;
+      margin: 0;
+    }
+
+    .ctrl-btn:hover {
+      background: var(--accent-color);
+      color: white;
+      border-color: var(--accent-color);
+    }
+
     .container { max-width: 800px; margin: 0 auto; }
-    .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 20px; }
-    h1, h2 { margin-top: 0; color: #1e293b; }
-    input, textarea, select, button { width: 100%; padding: 10px; margin-top: 8px; margin-bottom: 12px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
-    label { font-weight: 600; font-size: 0.9em; color: #475569; }
-    button { background: #1a73e8; color: white; border: none; font-weight: bold; cursor: pointer; }
-    button:hover { background: #1557b0; }
-    .btn-danger { background: #e74c3c; margin-top: 0; width: auto; padding: 6px 12px; font-size: 0.85em; }
+
+    .card {
+      background: var(--glass-bg);
+      backdrop-filter: var(--backdrop-blur);
+      -webkit-backdrop-filter: var(--backdrop-blur);
+      padding: 25px;
+      border-radius: 16px;
+      border: 1px solid var(--glass-border);
+      box-shadow: 0 8px 32px 0 var(--glass-shadow);
+      margin-bottom: 25px;
+    }
+
+    h1, h2, h3 { margin-top: 0; color: var(--text-main); }
+
+    label { font-weight: 600; font-size: 0.9em; color: var(--text-muted); display: block; margin-top: 10px; }
+
+    input, textarea, select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 6px;
+      margin-bottom: 12px;
+      border: 1px solid var(--glass-border);
+      background: var(--input-bg);
+      color: var(--text-main);
+      border-radius: 8px;
+    }
+
+    button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 8px;
+      margin-bottom: 12px;
+      border: none;
+      border-radius: 8px;
+      background: var(--accent-color);
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:hover { opacity: 0.9; }
+
+    .btn-danger {
+      background: #e74c3c;
+      margin: 0;
+      width: auto;
+      padding: 6px 12px;
+      font-size: 0.85em;
+    }
+
     .btn-danger:hover { background: #c0392b; }
+
     .hidden { display: none; }
-    .item-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding: 10px 0; }
+
+    .item-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--glass-border);
+      padding: 10px 0;
+    }
   </style>
 </head>
 <body>
 
+<div class="header-bar">
+  <h1 style="margin:0;">Admin - Le daily scoop</h1>
+  <div class="header-controls">
+    <button class="ctrl-btn" onclick="basculerGlass()" id="glass-btn">✨ Opacité : Glass</button>
+    <button class="ctrl-btn" onclick="basculerTheme()" id="theme-btn">🌙 Mode Sombre</button>
+  </div>
+</div>
+
 <div class="container">
-  <h1>Panneau d'administration</h1>
 
   <!-- Connexion -->
   <div id="login-block" class="card">
     <h2>Connexion</h2>
     <input type="password" id="password" placeholder="Mot de passe admin">
     <button onclick="seConnecter()">Se connecter</button>
-    <p id="login-error" style="color:red;" class="hidden">Mot de passe incorrect</p>
+    <p id="login-error" style="color:#e74c3c;" class="hidden">Mot de passe incorrect</p>
   </div>
 
   <!-- Dashboard -->
   <div id="admin-dashboard" class="hidden">
-    <button onclick="seDeconnecter()" style="background:#64748b; margin-bottom:20px;">Déconnexion</button>
+    <button onclick="seDeconnecter()" style="background:#64748b; margin-bottom:20px; width:auto; padding:8px 16px;">Déconnexion</button>
 
     <!-- Catégories -->
     <div class="card">
@@ -54,12 +197,12 @@
       <label>Image de l'article (.png, .gif, .webp, .jpg) :</label>
       <input type="file" id="actu-file" accept="image/*">
       <button onclick="ajouterActu()">Publier l'actualité</button>
-      <hr>
+      <hr style="border:0; border-top:1px solid var(--glass-border); margin:20px 0;">
       <h3>Actualités publiées</h3>
       <div id="list-actus"></div>
     </div>
 
-    <!-- Annonces (Leboncoin / Vinted) -->
+    <!-- Annonces -->
     <div class="card">
       <h2>Ajouter une Annonce</h2>
       <input type="text" id="vinted-titre" placeholder="Titre de l'annonce">
@@ -68,7 +211,7 @@
       <label>Photo du produit (.png, .gif, .webp, .jpg) :</label>
       <input type="file" id="vinted-file" accept="image/*">
       <button onclick="ajouterVinted()">Ajouter l'annonce</button>
-      <hr>
+      <hr style="border:0; border-top:1px solid var(--glass-border); margin:20px 0;">
       <h3>Annonces en ligne</h3>
       <div id="list-vinted"></div>
     </div>
@@ -77,6 +220,38 @@
 
 <script>
   let token = localStorage.getItem('admin_token');
+
+  // Gestion Thème & Style Glass
+  function initialiserApparence() {
+    const themeSauvegarde = localStorage.getItem('admin_theme') || 'light';
+    const glassSauvegarde = localStorage.getItem('admin_glass') || 'glass';
+
+    document.documentElement.setAttribute('data-theme', themeSauvegarde);
+    document.documentElement.setAttribute('data-glass', glassSauvegarde);
+
+    mettreAJourBoutons(themeSauvegarde, glassSauvegarde);
+  }
+
+  function basculerTheme() {
+    const currentTheme = document.documentElement.getAttribute('data-theme');
+    const nouveauTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', nouveauTheme);
+    localStorage.setItem('admin_theme', nouveauTheme);
+    mettreAJourBoutons(nouveauTheme, document.documentElement.getAttribute('data-glass'));
+  }
+
+  function basculerGlass() {
+    const currentGlass = document.documentElement.getAttribute('data-glass');
+    const nouveauGlass = currentGlass === 'glass' ? 'opaque' : 'glass';
+    document.documentElement.setAttribute('data-glass', nouveauGlass);
+    localStorage.setItem('admin_glass', nouveauGlass);
+    mettreAJourBoutons(document.documentElement.getAttribute('data-theme'), nouveauGlass);
+  }
+
+  function mettreAJourBoutons(theme, glass) {
+    document.getElementById('theme-btn').innerText = theme === 'dark' ? '☀️ Mode Clair' : '🌙 Mode Sombre';
+    document.getElementById('glass-btn').innerText = glass === 'glass' ? '🔲 Opacité : Opaque' : '✨ Opacité : Glass';
+  }
 
   async function seConnecter() {
     const pass = document.getElementById('password').value;
@@ -233,6 +408,7 @@
     chargerVinted();
   }
 
+  initialiserApparence();
   if (token) afficherDashboard();
 </script>
 </body>
