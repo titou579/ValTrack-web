@@ -3,334 +3,110 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Le daily scoop - Accueil</title>
+  <title>Accueil - Actualités</title>
   <style>
-    :root {
-      --bg-overlay: rgba(255, 255, 255, 0.45);
-      --glass-bg: rgba(255, 255, 255, 0.75);
-      --glass-border: rgba(255, 255, 255, 0.6);
-      --glass-shadow: rgba(31, 38, 135, 0.15);
-      --backdrop-blur: blur(16px) saturate(180%);
-      --text-main: #1f1f1f;
-      --text-muted: #5f6368;
-      --accent-color: #1a73e8;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f4f6f9; color: #333; line-height: 1.6; }
+    header { background: #1e293b; color: white; padding: 1.5rem; text-align: center; }
+    main { max-width: 1000px; margin: 2rem auto; padding: 0 1rem; }
+    
+    .filters { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 2rem; justify-content: center; }
+    .filter-btn { background: #e2e8f0; border: none; padding: 0.5rem 1.2rem; border-radius: 20px; cursor: pointer; font-weight: 600; transition: 0.2s; }
+    .filter-btn.active, .filter-btn:hover { background: #2563eb; color: white; }
 
-    [data-theme="dark"] {
-      --bg-overlay: rgba(15, 23, 42, 0.75);
-      --glass-bg: rgba(30, 41, 59, 0.8);
-      --glass-border: rgba(255, 255, 255, 0.12);
-      --glass-shadow: rgba(0, 0, 0, 0.4);
-      --text-main: #e8eaed;
-      --text-muted: #9aa0a6;
-      --accent-color: #8ab4f8;
-    }
-
-    [data-glass="opaque"] {
-      --glass-bg: #ffffff;
-      --backdrop-blur: none;
-      --glass-border: #cbd5e1;
-    }
-
-    [data-theme="dark"][data-glass="opaque"] {
-      --glass-bg: #1e293b;
-      --backdrop-blur: none;
-      --glass-border: #334155;
-    }
-
-    * { box-sizing: border-box; transition: background 0.25s, color 0.25s, border-color 0.25s; }
-
-    body {
-      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-      margin: 0;
-      padding: 20px;
-      min-height: 100vh;
-      background: linear-gradient(var(--bg-overlay), var(--bg-overlay)), url('accueil 2.png') no-repeat center center fixed;
-      background-size: cover;
-      color: var(--text-main);
-    }
-
-    header {
-      max-width: 1000px;
-      margin: 0 auto 30px auto;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 15px;
-    }
-
-    .brand {
-      font-size: 1.8em;
-      font-weight: 800;
-      letter-spacing: -0.5px;
-    }
-
-    .controls {
-      display: flex;
-      gap: 10px;
-    }
-
-    .ctrl-btn {
-      background: var(--glass-bg);
-      backdrop-filter: var(--backdrop-blur);
-      -webkit-backdrop-filter: var(--backdrop-blur);
-      border: 1px solid var(--glass-border);
-      color: var(--text-main);
-      padding: 8px 16px;
-      border-radius: 20px;
-      cursor: pointer;
-      font-weight: 600;
-      font-size: 0.85em;
-      box-shadow: 0 4px 12px var(--glass-shadow);
-    }
-
-    .ctrl-btn:hover {
-      background: var(--accent-color);
-      color: white;
-      border-color: var(--accent-color);
-    }
-
-    .container {
-      max-width: 1000px;
-      margin: 0 auto;
-    }
-
-    /* Filtres par catégories */
-    .categories-bar {
-      display: flex;
-      gap: 10px;
-      overflow-x: auto;
-      padding-bottom: 15px;
-      margin-bottom: 25px;
-    }
-
-    .cat-chip {
-      background: var(--glass-bg);
-      backdrop-filter: var(--backdrop-blur);
-      -webkit-backdrop-filter: var(--backdrop-blur);
-      border: 1px solid var(--glass-border);
-      padding: 8px 18px;
-      border-radius: 20px;
-      cursor: pointer;
-      white-space: nowrap;
-      font-weight: 600;
-      font-size: 0.9em;
-    }
-
-    .cat-chip.active, .cat-chip:hover {
-      background: var(--accent-color);
-      color: white;
-      border-color: var(--accent-color);
-    }
-
-    /* Grille d'articles */
-    .news-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 25px;
-    }
-
-    .card {
-      background: var(--glass-bg);
-      backdrop-filter: var(--backdrop-blur);
-      -webkit-backdrop-filter: var(--backdrop-blur);
-      border-radius: 16px;
-      border: 1px solid var(--glass-border);
-      box-shadow: 0 8px 32px 0 var(--glass-shadow);
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .card-img {
-      width: 100%;
-      height: 200px;
-      object-fit: cover;
-      background: rgba(0,0,0,0.05);
-      border-bottom: 1px solid var(--glass-border);
-    }
-
-    .card-body {
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      flex-grow: 1;
-    }
-
-    .card-badge {
-      align-self: flex-start;
-      font-size: 0.75em;
-      font-weight: 700;
-      text-transform: uppercase;
-      color: var(--accent-color);
-      letter-spacing: 0.5px;
-      margin-bottom: 8px;
-    }
-
-    .card-title {
-      margin: 0 0 10px 0;
-      font-size: 1.25em;
-      line-height: 1.3;
-    }
-
-    .card-text {
-      font-size: 0.95em;
-      color: var(--text-muted);
-      line-height: 1.5;
-      margin-bottom: 15px;
-      white-space: pre-line;
-      flex-grow: 1;
-    }
-
-    .card-date {
-      font-size: 0.8em;
-      color: var(--text-muted);
-      margin-top: auto;
-    }
-
-    .empty-state {
-      text-align: center;
-      padding: 40px;
-      background: var(--glass-bg);
-      backdrop-filter: var(--backdrop-blur);
-      border-radius: 16px;
-      border: 1px solid var(--glass-border);
-      grid-column: 1 / -1;
-    }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
+    .actu-card { background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05); display: flex; flex-direction: column; }
+    .actu-card img { width: 100%; height: 200px; object-fit: cover; }
+    .actu-content { padding: 1.2rem; flex: 1; display: flex; flex-direction: column; }
+    .badge { background: #e0e7ff; color: #4338ca; padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.8rem; font-weight: bold; width: fit-content; margin-bottom: 0.5rem; }
+    .actu-content h3 { font-size: 1.2rem; margin-bottom: 0.5rem; }
+    .actu-content p { color: #64748b; font-size: 0.95rem; flex: 1; white-space: pre-line; }
+    .actu-content small { color: #94a3b8; font-size: 0.8rem; margin-top: 1rem; }
+    .empty-msg { text-align: center; color: #64748b; width: 100%; grid-column: 1 / -1; padding: 2rem; }
   </style>
 </head>
 <body>
 
-<header>
-  <div class="brand">Le daily scoop</div>
-  <div class="controls">
-    <button class="ctrl-btn" onclick="basculerGlass()" id="glass-btn">✨ Opacité : Glass</button>
-    <button class="ctrl-btn" onclick="basculerTheme()" id="theme-btn">🌙 Mode Sombre</button>
-  </div>
-</header>
+  <header>
+    <h1>Actualités & Publication</h1>
+  </header>
 
-<div class="container">
-  <div class="categories-bar" id="categories-bar">
-    <button class="cat-chip active" onclick="filtrerCategorie(null, this)">Toutes</button>
-  </div>
+  <main>
+    <!-- Filtres des rubriques -->
+    <div id="categories-filter" class="filters"></div>
 
-  <div class="news-grid" id="news-grid">
-    <div class="empty-state">Chargement des actualités...</div>
-  </div>
-</div>
+    <!-- Grille des articles -->
+    <div id="actu-container" class="grid"></div>
+  </main>
 
-<script>
-  let articles = [];
-  let categorieActive = null;
+  <script>
+    let categorieActive = 'all';
 
-  function initialiserApparence() {
-    const themeSauvegarde = localStorage.getItem('site_theme') || 'light';
-    const glassSauvegarde = localStorage.getItem('site_glass') || 'glass';
+    document.addEventListener('DOMContentLoaded', () => {
+      chargerCategories();
+      chargerActus();
+    });
 
-    document.documentElement.setAttribute('data-theme', themeSauvegarde);
-    document.documentElement.setAttribute('data-glass', glassSauvegarde);
+    async function chargerCategories() {
+      try {
+        const res = await fetch('/api/categories?t=' + Date.now());
+        const categories = await res.json();
+        const container = document.getElementById('categories-filter');
+        if (!container) return;
 
-    mettreAJourBoutons(themeSauvegarde, glassSauvegarde);
-  }
+        let html = `<button class="filter-btn ${categorieActive === 'all' ? 'active' : ''}" onclick="filtrerCategorie('all')">Toutes</button>`;
 
-  function basculerTheme() {
-    const currentTheme = document.documentElement.getAttribute('data-theme');
-    const nouveauTheme = currentTheme === 'dark' ? 'light' : 'dark';
-    document.documentElement.setAttribute('data-theme', nouveauTheme);
-    localStorage.setItem('site_theme', nouveauTheme);
-    mettreAJourBoutons(nouveauTheme, document.documentElement.getAttribute('data-glass'));
-  }
+        categories.forEach(cat => {
+          html += `
+            <button class="filter-btn ${categorieActive == cat.id ? 'active' : ''}" onclick="filtrerCategorie(${cat.id})">
+              ${cat.nom}
+            </button>
+          `;
+        });
 
-  function basculerGlass() {
-    const currentGlass = document.documentElement.getAttribute('data-glass');
-    const nouveauGlass = currentGlass === 'glass' ? 'opaque' : 'glass';
-    document.documentElement.setAttribute('data-glass', nouveauGlass);
-    localStorage.setItem('site_glass', nouveauGlass);
-    mettreAJourBoutons(document.documentElement.getAttribute('data-theme'), nouveauGlass);
-  }
-
-  function mettreAJourBoutons(theme, glass) {
-    document.getElementById('theme-btn').innerText = theme === 'dark' ? '☀️ Mode Clair' : '🌙 Mode Sombre';
-    document.getElementById('glass-btn').innerText = glass === 'glass' ? '🔲 Opacité : Opaque' : '✨ Opacité : Glass';
-  }
-
-  async function chargerCategories() {
-    try {
-      const res = await fetch('/api/categories');
-      const categories = await res.json();
-      const bar = document.getElementById('categories-bar');
-      
-      categories.forEach(c => {
-        const btn = document.createElement('button');
-        btn.className = 'cat-chip';
-        btn.innerText = c.nom;
-        btn.onclick = () => filtrerCategorie(c.id, btn);
-        bar.appendChild(btn);
-      });
-    } catch (err) {
-      console.error("Erreur chargement catégories:", err);
-    }
-  }
-
-  async function chargerArticles() {
-    try {
-      const res = await fetch('/api/actu');
-      articles = await res.json();
-      afficherArticles();
-    } catch (err) {
-      console.error("Erreur chargement articles:", err);
-      document.getElementById('news-grid').innerHTML = '<div class="empty-state">Impossible de charger les actualités.</div>';
-    }
-  }
-
-  function filtrerCategorie(catId, element) {
-    categorieActive = catId;
-    document.querySelectorAll('.cat-chip').forEach(c => c.classList.remove('active'));
-    element.classList.add('active');
-    afficherArticles();
-  }
-
-  function afficherArticles() {
-    const grid = document.getElementById('news-grid');
-    const articlesFiltres = categorieActive 
-      ? articles.filter(a => a.category_id === categorieActive)
-      : articles;
-
-    if (articlesFiltres.length === 0) {
-      grid.innerHTML = '<div class="empty-state">Aucun article publié dans cette catégorie pour le moment.</div>';
-      return;
-    }
-
-    grid.innerHTML = articlesFiltres.map(a => {
-      // Formater le chemin de l'image pour s'assurer qu'il démarre par /
-      let imgTag = '';
-      if (a.image) {
-        const imageSrc = a.image.startsWith('/') ? a.image : '/' + a.image;
-        imgTag = `<img src="${imageSrc}" class="card-img" alt="${a.titre}" onerror="this.style.display='none'">`;
+        container.innerHTML = html;
+      } catch (err) {
+        console.error("Erreur chargement catégories:", err);
       }
+    }
 
-      const dateFormatted = a.date ? new Date(a.date).toLocaleDateString('fr-FR', {
-        day: 'numeric', month: 'long', year: 'numeric'
-      }) : '';
+    async function chargerActus() {
+      try {
+        const res = await fetch('/api/actu?t=' + Date.now());
+        const actus = await res.json();
+        const container = document.getElementById('actu-container');
+        if (!container) return;
 
-      return `
-        <article class="card">
-          ${imgTag}
-          <div class="card-body">
-            <span class="card-badge">${a.category_name || 'Général'}</span>
-            <h2 class="card-title">${a.titre}</h2>
-            <p class="card-text">${a.contenu || ''}</p>
-            <div class="card-date">${dateFormatted}</div>
+        const actusFiltrees = categorieActive === 'all' 
+          ? actus 
+          : actus.filter(a => a.category_id == categorieActive);
+
+        if (actusFiltrees.length === 0) {
+          container.innerHTML = '<p class="empty-msg">Aucune actualité dans cette rubrique.</p>';
+          return;
+        }
+
+        container.innerHTML = actusFiltrees.map(item => `
+          <div class="actu-card">
+            ${item.image ? `<img src="${item.image}" alt="${item.titre}">` : ''}
+            <div class="actu-content">
+              <span class="badge">${item.category_name || 'Général'}</span>
+              <h3>${item.titre}</h3>
+              <p>${item.contenu}</p>
+              <small>${new Date(item.date).toLocaleDateString('fr-FR')}</small>
+            </div>
           </div>
-        </article>
-      `;
-    }).join('');
-  }
+        `).join('');
+      } catch (err) {
+        console.error("Erreur chargement actu:", err);
+      }
+    }
 
-  initialiserApparence();
-  chargerCategories();
-  chargerArticles();
-</script>
+    function filtrerCategorie(id) {
+      categorieActive = id;
+      chargerCategories();
+      chargerActus();
+    }
+  </script>
 </body>
 </html>
