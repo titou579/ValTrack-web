@@ -1,166 +1,158 @@
 const express = require('express');
-const Database = require('better-sqlite3');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const path = require('path');
+const sqlite3 = require('sqlite3').verbose();
 const multer = require('multer');
+const path = require('path');
 const fs = require('fs');
+const jwt = require('jsonwebtoken');
 
 const app = express();
-const db = new Database('database.db');
-const JWT_SECRET = 'change_ce_secret_tres_long_et_securise_12345';
+const PORT = process.env.PORT || 3000;
+const JWT_SECRET = process.env.JWT_SECRET || 'votre_cle_secrete_super_securisee';
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123';
 
-// Configuration du stockage d'images avec Multer
-const uploadsDir = path.join(__dirname, 'public', 'uploads');
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
+// Vérifier et créer le dossier d'upload s'il n'existe pas
+const uploadDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
 }
 
+// Configuration de Multer pour le stockage des images
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, uploadsDir);
+    cb(null, uploadDir);
   },
   filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname);
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, uniqueSuffix + ext);
+    const ext = path.extname(file.originalname);
+    cb(null, 'img-' + uniqueSuffix + ext);
   }
 });
+const upload = multer({ storage: storage });
 
-const upload = multer({ storage });
-
-// Database initialization
-db.exec(`
-  CREATE TABLE IF NOT EXISTS categories (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    nom TEXT UNIQUE NOT NULL
-  );
-  CREATE TABLE IF NOT EXISTS actu (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    titre TEXT NOT NULL,
-    contenu TEXT NOT NULL,
-    date TEXT NOT NULL,
-    category_id INTEGER,
-    image_url TEXT,
-    FOREIGN KEY(category_id) REFERENCES categories(id) ON DELETE CASCADE
-  );
-  CREATE TABLE IF NOT EXISTS vinted (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    titre TEXT NOT NULL,
-    prix TEXT NOT NULL,
-    lien TEXT NOT NULL,
-    image_url TEXT
-  );
-  CREATE TABLE IF NOT EXISTS admin (
-    id INTEGER PRIMARY KEY,
-    password_hash TEXT NOT NULL
-  );
-`);
-
-try { db.exec(`ALTER TABLE actu ADD COLUMN image_url TEXT`); } catch(e) {}
-
-const countCat = db.prepare('SELECT COUNT(*) as count FROM categories').get();
-if (countCat.count === 0) {
-  db.prepare('INSERT INTO categories (nom) VALUES (?)').run('Général');
-  db.prepare('INSERT INTO categories (nom) VALUES (?)').run('Annonces');
-}
-
-const rowAdmin = db.prepare('SELECT * FROM admin WHERE id = 1').get();
-if (!rowAdmin) {
-  const hash = bcrypt.hashSync('MonSuperPass123!', 10);
-  db.prepare('INSERT INTO admin (id, password_hash) VALUES (1, ?)').run(hash);
-}
-
+// Middlewares
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Rendre les fichiers statiques accessibles (TRÈS IMPORTANT POUR LES IMAGES)
 app.use(express.static(path.join(__dirname, 'public')));
+app.use('/uploads', express.static(uploadDir));
 
-function verifierAdmin(req, res, next) {
-  const authHeader = req.headers.authorization;
-  if (!authHeader) return res.status(401).json({ error: 'Accès refusé' });
+// Initialisation de la Base de Données SQLite
+const db = new sqlite3.Database('./data.db', (err) => {
+  if (err) console.error("Erreur ouverture DB:", err.message);
+  else console.log("Connecté à la base de données SQLite.");
+});
 
-  const token = authHeader.split(' ')[1];
-  try {
-    const decoded = jwt.verify(token, JWT_SECRET);
-    req.admin = decoded;
+// Création des tables si elles n'existent pas
+db.serialize(() => {
+  db.run(`CREATE TABLE IF NOT EXISTS categories (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    nom TEXT NOT NULL UNIQUE
+  )`);
+
+  db.run(`CREATE TABLE IF NOT EXISTS actu (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    category_id INTEGER,
+    titre TEXT NOT NULL,
+    contenu TEXT,
+    image TEXT,
+    date DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(category_id) REFERENCES categories(id) ON DELETE CASCADE
+  )`);
+});
+
+// Middleware d'authentification JWT pour les routes admin
+function verifierToken(req, res, next) {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+  if (!token) return res.status(0x191).json({ error: "Accès non autorisé" });
+
+  jwt.verify(token, JWT_SECRET, (err, user) => {
+    if (err) return res.status(0x193).json({ error: "Token invalide ou expiré" });
+    req.user = user;
     next();
-  } catch (err) {
-    res.status(403).json({ error: 'Jeton invalide' });
-  }
+  });
 }
 
+// ==================== ROUTES API ====================
+
+// Connexion Admin
 app.post('/api/login', (req, res) => {
   const { password } = req.body;
-  const admin = db.prepare('SELECT * FROM admin WHERE id = 1').get();
-
-  if (bcrypt.compareSync(password, admin.password_hash)) {
-    const token = jwt.sign({ admin: true }, JWT_SECRET, { expiresIn: '6h' });
-    res.json({ success: true, token });
-  } else {
-    res.status(401).json({ error: 'Mot de passe incorrect' });
+  if (password === ADMIN_PASSWORD) {
+    const token = jwt.sign({ role: 'admin' }, JWT_SECRET, { expiresIn: '24h' });
+    return res.json({ success: true, token });
   }
+  res.status(401).json({ success: false, message: "Mot de passe incorrect" });
 });
 
+// --- Catégories ---
 app.get('/api/categories', (req, res) => {
-  res.json(db.prepare('SELECT * FROM categories').all());
+  db.all("SELECT * FROM categories ORDER BY nom ASC", [], (err, rows) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json(rows);
+  });
 });
 
-app.get('/api/actu', (req, res) => {
-  const catId = req.query.cat;
-  if (catId) {
-    res.json(db.prepare('SELECT * FROM actu WHERE category_id = ? ORDER BY id DESC').all(catId));
-  } else {
-    res.json(db.prepare('SELECT * FROM actu ORDER BY id DESC').all());
-  }
-});
-
-app.get('/api/vinted', (req, res) => {
-  res.json(db.prepare('SELECT * FROM vinted ORDER BY id DESC').all());
-});
-
-app.post('/api/categories', verifierAdmin, (req, res) => {
+app.post('/api/categories', verifierToken, (req, res) => {
   const { nom } = req.body;
-  try {
-    db.prepare('INSERT INTO categories (nom) VALUES (?)').run(nom);
+  if (!nom) return res.status(400).json({ error: "Nom requis" });
+  db.run("INSERT INTO categories (nom) VALUES (?)", [nom], function(err) {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json({ id: this.lastID, nom });
+  });
+});
+
+app.delete('/api/categories/:id', verifierToken, (req, res) => {
+  db.run("DELETE FROM categories WHERE id = ?", [req.params.id], function(err) {
+    if (err) return res.status(500).json({ error: err.message });
     res.json({ success: true });
-  } catch (e) {
-    res.status(400).json({ error: 'Cette catégorie existe déjà.' });
+  });
+});
+
+// --- Actualités ---
+app.get('/api/actu', (req, res) => {
+  const query = `
+    SELECT actu.*, categories.nom AS category_name 
+    FROM actu 
+    LEFT JOIN categories ON actu.category_id = categories.id 
+    ORDER BY actu.id DESC
+  `;
+  db.all(query, [], (err, rows) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json(rows);
+  });
+});
+
+app.post('/api/actu', verifierToken, upload.single('image'), (req, res) => {
+  const { category_id, titre, contenu } = req.body;
+  let imagePath = null;
+
+  if (req.file) {
+    // Normaliser l'URL publique de l'image
+    imagePath = '/uploads/' + req.file.filename;
   }
+
+  const stmt = db.prepare("INSERT INTO actu (category_id, titre, contenu, image) VALUES (?, ?, ?, ?)");
+  stmt.run([category_id, titre, contenu, imagePath], function(err) {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json({ id: this.lastID, category_id, titre, contenu, image: imagePath });
+  });
+  stmt.finalize();
 });
 
-app.delete('/api/categories/:id', verifierAdmin, (req, res) => {
-  db.prepare('DELETE FROM actu WHERE category_id = ?').run(req.params.id);
-  db.prepare('DELETE FROM categories WHERE id = ?').run(req.params.id);
-  res.json({ success: true });
+app.delete('/api/actu/:id', verifierToken, (req, res) => {
+  db.run("DELETE FROM actu WHERE id = ?", [req.params.id], function(err) {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json({ success: true });
+  });
 });
 
-// Publication Actu avec image locale
-app.post('/api/actu', verifierAdmin, upload.single('image'), (req, res) => {
-  const { titre, contenu, category_id } = req.body;
-  const date = new Date().toLocaleDateString('fr-FR');
-  const image_url = req.file ? `/uploads/${req.file.filename}` : null;
-
-  db.prepare('INSERT INTO actu (titre, contenu, date, category_id, image_url) VALUES (?, ?, ?, ?, ?)').run(titre, contenu, date, category_id, image_url);
-  res.json({ success: true });
+// Redirection globale vers index.html pour les routes inconnues
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-app.delete('/api/actu/:id', verifierAdmin, (req, res) => {
-  db.prepare('DELETE FROM actu WHERE id = ?').run(req.params.id);
-  res.json({ success: true });
+app.listen(PORT, () => {
+  console.log(`Serveur démarré sur http://localhost:${PORT}`);
 });
-
-// Publication Annonce avec image locale
-app.post('/api/vinted', verifierAdmin, upload.single('image'), (req, res) => {
-  const { titre, prix, lien } = req.body;
-  const image_url = req.file ? `/uploads/${req.file.filename}` : null;
-
-  db.prepare('INSERT INTO vinted (titre, prix, lien, image_url) VALUES (?, ?, ?, ?)').run(titre, prix, lien, image_url);
-  res.json({ success: true });
-});
-
-app.delete('/api/vinted/:id', verifierAdmin, (req, res) => {
-  db.prepare('DELETE FROM vinted WHERE id = ?').run(req.params.id);
-  res.json({ success: true });
-});
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Serveur prêt sur le port ${PORT}`));
