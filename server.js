@@ -3,12 +3,33 @@ const Database = require('better-sqlite3');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const path = require('path');
+const multer = require('multer');
+const fs = require('fs');
 
 const app = express();
 const db = new Database('database.db');
 const JWT_SECRET = 'change_ce_secret_tres_long_et_securise_12345';
 
-// Initialisation des tables SQLite
+// Configuration du stockage d'images avec Multer
+const uploadsDir = path.join(__dirname, 'public', 'uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, uploadsDir);
+  },
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname);
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, uniqueSuffix + ext);
+  }
+});
+
+const upload = multer({ storage });
+
+// Database initialization
 db.exec(`
   CREATE TABLE IF NOT EXISTS categories (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -20,6 +41,7 @@ db.exec(`
     contenu TEXT NOT NULL,
     date TEXT NOT NULL,
     category_id INTEGER,
+    image_url TEXT,
     FOREIGN KEY(category_id) REFERENCES categories(id) ON DELETE CASCADE
   );
   CREATE TABLE IF NOT EXISTS vinted (
@@ -35,14 +57,14 @@ db.exec(`
   );
 `);
 
-// Catégories initiales par défaut
+try { db.exec(`ALTER TABLE actu ADD COLUMN image_url TEXT`); } catch(e) {}
+
 const countCat = db.prepare('SELECT COUNT(*) as count FROM categories').get();
 if (countCat.count === 0) {
   db.prepare('INSERT INTO categories (nom) VALUES (?)').run('Général');
   db.prepare('INSERT INTO categories (nom) VALUES (?)').run('Annonces');
 }
 
-// Initialisation du compte Admin par défaut
 const rowAdmin = db.prepare('SELECT * FROM admin WHERE id = 1').get();
 if (!rowAdmin) {
   const hash = bcrypt.hashSync('MonSuperPass123!', 10);
@@ -52,7 +74,6 @@ if (!rowAdmin) {
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Middleware d'authentification Admin via JWT
 function verifierAdmin(req, res, next) {
   const authHeader = req.headers.authorization;
   if (!authHeader) return res.status(401).json({ error: 'Accès refusé' });
@@ -67,7 +88,6 @@ function verifierAdmin(req, res, next) {
   }
 }
 
-// Connexion Admin
 app.post('/api/login', (req, res) => {
   const { password } = req.body;
   const admin = db.prepare('SELECT * FROM admin WHERE id = 1').get();
@@ -80,7 +100,6 @@ app.post('/api/login', (req, res) => {
   }
 });
 
-// Routes publiques
 app.get('/api/categories', (req, res) => {
   res.json(db.prepare('SELECT * FROM categories').all());
 });
@@ -98,7 +117,6 @@ app.get('/api/vinted', (req, res) => {
   res.json(db.prepare('SELECT * FROM vinted ORDER BY id DESC').all());
 });
 
-// Routes protégées Admin
 app.post('/api/categories', verifierAdmin, (req, res) => {
   const { nom } = req.body;
   try {
@@ -115,10 +133,13 @@ app.delete('/api/categories/:id', verifierAdmin, (req, res) => {
   res.json({ success: true });
 });
 
-app.post('/api/actu', verifierAdmin, (req, res) => {
+// Publication Actu avec image locale
+app.post('/api/actu', verifierAdmin, upload.single('image'), (req, res) => {
   const { titre, contenu, category_id } = req.body;
   const date = new Date().toLocaleDateString('fr-FR');
-  db.prepare('INSERT INTO actu (titre, contenu, date, category_id) VALUES (?, ?, ?, ?)').run(titre, contenu, date, category_id);
+  const image_url = req.file ? `/uploads/${req.file.filename}` : null;
+
+  db.prepare('INSERT INTO actu (titre, contenu, date, category_id, image_url) VALUES (?, ?, ?, ?, ?)').run(titre, contenu, date, category_id, image_url);
   res.json({ success: true });
 });
 
@@ -127,8 +148,11 @@ app.delete('/api/actu/:id', verifierAdmin, (req, res) => {
   res.json({ success: true });
 });
 
-app.post('/api/vinted', verifierAdmin, (req, res) => {
-  const { titre, prix, lien, image_url } = req.body;
+// Publication Annonce avec image locale
+app.post('/api/vinted', verifierAdmin, upload.single('image'), (req, res) => {
+  const { titre, prix, lien } = req.body;
+  const image_url = req.file ? `/uploads/${req.file.filename}` : null;
+
   db.prepare('INSERT INTO vinted (titre, prix, lien, image_url) VALUES (?, ?, ?, ?)').run(titre, prix, lien, image_url);
   res.json({ success: true });
 });
@@ -138,6 +162,5 @@ app.delete('/api/vinted/:id', verifierAdmin, (req, res) => {
   res.json({ success: true });
 });
 
-// Port dynamique Render ou 3000 par défaut
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Serveur prêt sur le port ${PORT}`));
