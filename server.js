@@ -111,7 +111,7 @@ app.post('/api/categories', verifierAdmin, (req, res) => {
 
 app.delete('/api/categories/:id', verifierAdmin, (req, res) => {
   db.prepare('DELETE FROM actu WHERE category_id = ?').run(req.params.id);
-  db.prepare('DELETE FROM categories WHERE id = ?').run(req.params.id);
+  db.prepare('DELETE FROM categories/:id').run(req.params.id);
   res.json({ success: true });
 });
 
@@ -138,6 +138,6 @@ app.delete('/api/vinted/:id', verifierAdmin, (req, res) => {
   res.json({ success: true });
 });
 
-// Port dynamique pour Render ou 3000 en local
+// Port dynamique Render ou 3000 par défaut
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Serveur prêt sur le port ${PORT}`));
