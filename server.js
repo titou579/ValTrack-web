@@ -111,7 +111,7 @@ app.post('/api/categories', verifierAdmin, (req, res) => {
 
 app.delete('/api/categories/:id', verifierAdmin, (req, res) => {
   db.prepare('DELETE FROM actu WHERE category_id = ?').run(req.params.id);
-  db.prepare('DELETE FROM categories/:id').run(req.params.id);
+  db.prepare('DELETE FROM categories WHERE id = ?').run(req.params.id);
   res.json({ success: true });
 });
 
