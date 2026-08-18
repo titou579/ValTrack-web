@@ -5,8 +5,11 @@
   "scripts": {
     "start": "node server.js"
   },
+  "engines": {
+    "node": "20.x"
+  },
   "dependencies": {
-    "better-sqlite3": "^9.4.3",
+    "better-sqlite3": "^11.0.0",
     "bcryptjs": "^2.4.3",
     "express": "^4.19.2",
     "jsonwebtoken": "^9.0.2"
