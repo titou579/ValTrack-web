@@ -3,110 +3,119 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Accueil - Actualités</title>
+  <title>Fil d'Actualités</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f4f6f9; color: #333; line-height: 1.6; }
-    header { background: #1e293b; color: white; padding: 1.5rem; text-align: center; }
-    main { max-width: 1000px; margin: 2rem auto; padding: 0 1rem; }
-    
-    .filters { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 2rem; justify-content: center; }
-    .filter-btn { background: #e2e8f0; border: none; padding: 0.5rem 1.2rem; border-radius: 20px; cursor: pointer; font-weight: 600; transition: 0.2s; }
-    .filter-btn.active, .filter-btn:hover { background: #2563eb; color: white; }
+    body { font-family: Arial, sans-serif; background: #f4f6f8; color: #333; padding: 20px; }
+    .container { max-width: 800px; margin: 0 auto; }
+    h1 { text-align: center; margin-bottom: 20px; color: #111; }
 
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
-    .actu-card { background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05); display: flex; flex-direction: column; }
-    .actu-card img { width: 100%; height: 200px; object-fit: cover; }
-    .actu-content { padding: 1.2rem; flex: 1; display: flex; flex-direction: column; }
-    .badge { background: #e0e7ff; color: #4338ca; padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.8rem; font-weight: bold; width: fit-content; margin-bottom: 0.5rem; }
-    .actu-content h3 { font-size: 1.2rem; margin-bottom: 0.5rem; }
-    .actu-content p { color: #64748b; font-size: 0.95rem; flex: 1; white-space: pre-line; }
-    .actu-content small { color: #94a3b8; font-size: 0.8rem; margin-top: 1rem; }
-    .empty-msg { text-align: center; color: #64748b; width: 100%; grid-column: 1 / -1; padding: 2rem; }
+    /* Formulaire */
+    .form-card { background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 30px; }
+    .form-card h2 { margin-bottom: 15px; font-size: 1.2rem; }
+    .form-group { margin-bottom: 15px; }
+    .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
+    .form-group input, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
+    .form-group textarea { resize: vertical; height: 100px; }
+    button { background: #0066cc; color: #fff; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-size: 1rem; }
+    button:hover { background: #0052a3; }
+
+    /* Liste des actualités */
+    .actu-card { background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 20px; overflow: hidden; }
+    .actu-card img { width: 100%; max-height: 350px; object-fit: cover; }
+    .actu-body { padding: 20px; }
+    .actu-body h3 { margin-bottom: 10px; color: #222; }
+    .actu-body p { line-height: 1.6; color: #555; white-space: pre-line; }
+    .actu-date { font-size: 0.85rem; color: #888; margin-top: 10px; }
+    .btn-delete { background: #dc3545; margin-top: 15px; padding: 6px 12px; font-size: 0.85rem; }
+    .btn-delete:hover { background: #bd2130; }
   </style>
 </head>
 <body>
 
-  <header>
-    <h1>Actualités & Publication</h1>
-  </header>
+  <div class="container">
+    <h1>Fil d'Actualités</h1>
 
-  <main>
-    <!-- Filtres des rubriques -->
-    <div id="categories-filter" class="filters"></div>
+    <!-- Formulaire d'ajout -->
+    <div class="form-card">
+      <h2>Publier un article</h2>
+      <form id="actuForm">
+        <div class="form-group">
+          <label for="title">Titre</label>
+          <input type="text" id="title" required>
+        </div>
+        <div class="form-group">
+          <label for="content">Contenu</label>
+          <textarea id="content" required></textarea>
+        </div>
+        <div class="form-group">
+          <label for="image">Image (optionnel)</label>
+          <input type="file" id="image" accept="image/*">
+        </div>
+        <button type="submit">Publier</button>
+      </form>
+    </div>
 
-    <!-- Grille des articles -->
-    <div id="actu-container" class="grid"></div>
-  </main>
+    <!-- Conteneur des actualités -->
+    <div id="actuFeed"></div>
+  </div>
 
   <script>
-    let categorieActive = 'all';
+    const actuForm = document.getElementById('actuForm');
+    const actuFeed = document.getElementById('actuFeed');
 
-    document.addEventListener('DOMContentLoaded', () => {
-      chargerCategories();
-      chargerActus();
-    });
-
-    async function chargerCategories() {
+    // Charger les actualités au démarrage
+    async function loadArticles() {
       try {
-        const res = await fetch('/api/categories?t=' + Date.now());
-        const categories = await res.json();
-        const container = document.getElementById('categories-filter');
-        if (!container) return;
-
-        let html = `<button class="filter-btn ${categorieActive === 'all' ? 'active' : ''}" onclick="filtrerCategorie('all')">Toutes</button>`;
-
-        categories.forEach(cat => {
-          html += `
-            <button class="filter-btn ${categorieActive == cat.id ? 'active' : ''}" onclick="filtrerCategorie(${cat.id})">
-              ${cat.nom}
-            </button>
-          `;
-        });
-
-        container.innerHTML = html;
-      } catch (err) {
-        console.error("Erreur chargement catégories:", err);
-      }
-    }
-
-    async function chargerActus() {
-      try {
-        const res = await fetch('/api/actu?t=' + Date.now());
-        const actus = await res.json();
-        const container = document.getElementById('actu-container');
-        if (!container) return;
-
-        const actusFiltrees = categorieActive === 'all' 
-          ? actus 
-          : actus.filter(a => a.category_id == categorieActive);
-
-        if (actusFiltrees.length === 0) {
-          container.innerHTML = '<p class="empty-msg">Aucune actualité dans cette rubrique.</p>';
-          return;
-        }
-
-        container.innerHTML = actusFiltrees.map(item => `
+        const res = await fetch('/api/actu');
+        const articles = await res.json();
+        
+        actuFeed.innerHTML = articles.map(art => `
           <div class="actu-card">
-            ${item.image ? `<img src="${item.image}" alt="${item.titre}">` : ''}
-            <div class="actu-content">
-              <span class="badge">${item.category_name || 'Général'}</span>
-              <h3>${item.titre}</h3>
-              <p>${item.contenu}</p>
-              <small>${new Date(item.date).toLocaleDateString('fr-FR')}</small>
+            ${art.image ? `<img src="${art.image}" alt="${art.title}">` : ''}
+            <div class="actu-body">
+              <h3>${art.title}</h3>
+              <p>${art.content}</p>
+              <div class="actu-date">Publié le ${new Date(art.date).toLocaleDateString('fr-FR')}</div>
+              <button class="btn-delete" onclick="deleteArticle(${art.id})">Supprimer</button>
             </div>
           </div>
         `).join('');
       } catch (err) {
-        console.error("Erreur chargement actu:", err);
+        console.error('Erreur lors du chargement des articles:', err);
       }
     }
 
-    function filtrerCategorie(id) {
-      categorieActive = id;
-      chargerCategories();
-      chargerActus();
+    // Soumission du formulaire
+    actuForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formData = new FormData();
+      formData.append('title', document.getElementById('title').value);
+      formData.append('content', document.getElementById('content').value);
+      
+      const imageFile = document.getElementById('image').files[0];
+      if (imageFile) {
+        formData.append('image', imageFile);
+      }
+
+      await fetch('/api/actu', {
+        method: 'POST',
+        body: formData
+      });
+
+      actuForm.reset();
+      loadArticles();
+    });
+
+    // Supprimer un article
+    async function deleteArticle(id) {
+      if (confirm('Voulez-vous vraiment supprimer cet article ?')) {
+        await fetch(`/api/actu/${id}`, { method: 'DELETE' });
+        loadArticles();
+      }
     }
+
+    loadArticles();
   </script>
 </body>
 </html>
